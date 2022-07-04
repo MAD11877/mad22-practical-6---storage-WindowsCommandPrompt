@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/animationTest/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.22" />
+        <entry key="..\:/animationTest/app/src/main/res/drawable/buttonstyling.xml" value="0.13333333333333333" />
+        <entry key="..\:/animationTest/app/src/main/res/drawable/frame1.xml" value="0.1" />
+        <entry key="..\:/animationTest/app/src/main/res/drawable/frame2.xml" value="0.1" />
+        <entry key="..\:/animationTest/app/src/main/res/drawable/frame3.xml" value="0.1" />
+        <entry key="..\:/animationTest/app/src/main/res/drawable/frame4.xml" value="0.1" />
+        <entry key="..\:/animationTest/app/src/main/res/drawable/frame5.xml" value="0.1085" />
+        <entry key="..\:/animationTest/app/src/main/res/drawable/ic_baseline_explore_24.xml" value="0.1" />
+        <entry key="..\:/animationTest/app/src/main/res/drawable/ic_baseline_login_24.xml" value="0.1" />
+        <entry key="..\:/animationTest/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
+        <entry key="..\:/animationTest/app/src/main/res/drawable/newa.xml" value="0.1" />
+        <entry key="..\:/animationTest/app/src/main/res/drawable/rotate_drawable.xml" value="0.1" />
+        <entry key="..\:/animationTest/app/src/main/res/drawable/temp.xml" value="0.113" />
+        <entry key="..\:/animationTest/app/src/main/res/layout/activity_animation_test_root.xml" value="0.16666666666666666" />
+        <entry key="..\:/animationTest/app/src/main/res/layout/create_user_account.xml" value="0.29945054945054944" />
+        <entry key="..\:/animationTest/app/src/main/res/layout/main_recycler_view_other_users_exploration.xml" value="0.17552083333333332" />
+        <entry key="..\:/animationTest/app/src/main/res/layout/message_layout.xml" value="0.17552083333333332" />
+        <entry key="..\:/animationTest/app/src/main/res/layout/practical5_loginpage.xml" value="0.1" />
+        <entry key="..\:/animationTest/app/src/main/res/layout/recycler_view_viewholder_layout.xml" value="0.17552083333333332" />
+        <entry key="..\:/animationTest/app/src/main/res/layout/user_page.xml" value="0.16666666666666666" />
+        <entry key="..\:/animationTest/app/src/main/res/layout/user_profile.xml" value="0.17552083333333332" />
+        <entry key="..\:/animationTest/app/src/main/res/layout/userinterface.xml" value="0.17552083333333332" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>
