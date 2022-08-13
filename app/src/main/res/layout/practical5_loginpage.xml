@@ -16,10 +16,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
         <TextView
+            android:visibility = "gone"
             android:layout_width="0px"
             android:layout_height="0px"
             android:text = ""
             android:id = "@+id/tempString"/>
+        <TextView
+            android:visibility = "gone"
+            android:layout_width = "0px"
+            android:layout_height = "0px"
+            android:text = ""
+            android:id = "@+id/databaseStringLength" />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

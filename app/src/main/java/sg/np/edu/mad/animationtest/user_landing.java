@@ -15,11 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.*;
-import java.util.concurrent.atomic.*;
 
-import com.google.common.util.concurrent.AsyncCallable;
-import com.google.common.util.concurrent.Callables;
-import com.google.firebase.database.DataSnapshot;
+import com.google.android.gms.common.util.ArrayUtils;
 import com.google.firebase.firestore.*;
 
 public class user_landing extends AppCompatActivity {
@@ -43,135 +40,12 @@ public class user_landing extends AppCompatActivity {
 
     public user_landing() { }
 
-    private HashMap<String, Object> a;
-
-    public void setTempHashMap(HashMap<String, Object> a){
-        this.a = a;
-    }
-
-    public HashMap<String, Object> getTempHashMap(){
-        return this.a;
-    }
-
-    public static String S(){
-        final String LOWER_CASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";
-        final String UPPER_CASE_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        final String DIGITS = "0123456789";
-        final String SYMBOLS = "~!@#$%^&*()_+`-={}|:<>?[];',./";
-        final String STRING_POOL = LOWER_CASE_LETTERS + UPPER_CASE_LETTERS + DIGITS + SYMBOLS;
-        Random generator = new Random();
-        String element = "";
-        int passwordLength = Math.abs(generator.nextInt(30));
-        do{
-            int index = Math.abs(generator.nextInt(STRING_POOL.length() - 1));
-            char target = STRING_POOL.charAt(index);
-            element += target;
-        }
-        while (element.length() < 20);
-        return element;
-    }
-
-    public static String U(){
-        String a = "";
-        ArrayList<String> descriptiveListForGeneralPositive = new ArrayList<>(
-                Arrays.asList(
-                        "Powerful",
-                        "Invincible",
-                        "Fearless",
-                        "Untouchable",
-                        "Undestructable",
-                        "Impregnable",
-                        "Inviolable",
-                        "Unassailable",
-                        "Solid",
-                        "Rugged",
-                        "Tough",
-                        "Vigorous",
-                        "Sturdy",
-                        "Robust",
-                        "Substantial",
-                        "Durable",
-                        "Energetic",
-                        "Speedy",
-                        "Wise",
-                        "Euphoric",
-                        "Inspirational",
-                        "Bright",
-                        "Thoughtful",
-                        "Diligent",
-                        "Amiable",
-                        "Hardworking",
-                        "Studious",
-                        "Clever",
-                        "Brilliant",
-                        "EasyGoing",
-                        "Mindful",
-                        "Adventurous",
-                        "Enchanting",
-                        "Wise",
-                        "Exceptional",
-                        "Determined",
-                        "Thoughtful",
-                        "Enthusiastic"
-                )
-        );
-        ArrayList<String> nameListPerson = new ArrayList<>(
-                Arrays.asList(
-                        "Professional",
-                        "Wiz",
-                        "User",
-                        "Wizard",
-                        "Killer",
-                        "Wiper"
-                )
-        );
-        ArrayList<String> nameListAnimal = new ArrayList<String>(
-                Arrays.asList(
-                        "Impala",
-                        "Jaguar",
-                        "Cheetah",
-                        "Lion",
-                        "Tiger"
-                )
-        );
-        if ((new Random()).nextInt(2) == 0){
-            //take from the nameListPerson
-            a += descriptiveListForGeneralPositive.get(new Random().nextInt(descriptiveListForGeneralPositive.size() - 1))
-                    + "_"
-                    + ((Math.abs((new Random()).nextInt(3)) == 0)
-                        ? ReturnCharacterInterval()
-                        : (Math.abs((new Random()).nextInt(3)) == 1)
-                        ? 2 * ReturnCharacterInterval()
-                        : (Math.abs((new Random()).nextInt(3)) == 2)
-                        ? 3 * ReturnCharacterInterval()
-                        : (Math.abs((new Random()).nextInt(3)) == 3)
-                        ? 4 * ReturnCharacterInterval()
-                        : "");
-        }
-        else if ((new Random()).nextInt(2) == 1){
-            //take from the nameListPerson
-            a += descriptiveListForGeneralPositive.get(new Random().nextInt(descriptiveListForGeneralPositive.size() - 1))
-                    + "_"
-                    + ((Math.abs((new Random()).nextInt(3)) == 0)
-                        ? ReturnCharacterInterval()
-                        : (Math.abs((new Random()).nextInt(3)) == 1)
-                        ? 2 * ReturnCharacterInterval()
-                        : (Math.abs((new Random()).nextInt(3)) == 2)
-                        ? 3 * ReturnCharacterInterval()
-                        : (Math.abs((new Random()).nextInt(3)) == 3)
-                        ? 4 * ReturnCharacterInterval()
-                        : "");
-        }
-        return a;
-    }
-
-
     //generate a password...
     private static void PasswordGenerator_x20length(ArrayList<String> password) {
         final String LOWER_CASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";
         final String UPPER_CASE_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         final String DIGITS = "0123456789";
-        final String SYMBOLS = "~!@#$%^&*()_+`-={}|:<>?[];',./";
+        final String SYMBOLS = "~!@#$%^&*()+`-|:<>?;'./";
         final String STRING_POOL = LOWER_CASE_LETTERS + UPPER_CASE_LETTERS + DIGITS + SYMBOLS;
         Random generator = new Random();
         String element = "";
@@ -290,104 +164,6 @@ public class user_landing extends AppCompatActivity {
 
     public DBHandler dbHandler = new DBHandler(this);
 
-    // use the 'FirebaseFirestore' to write to the Firebase storage...
-    public static FirebaseFirestore RESTdb = FirebaseFirestore.getInstance();
-
-    //check for whether the username exists in the database. false
-    //Firestorage (root) -> collection node -> document node
-    public Boolean isAnEntryInDatabase(String username){
-        boolean existance = false;
-        Log.d("isAnEntryInDatabase", "Function begins execution....");
-        for (User u : ConvertToUser()){
-            Log.d("User", u.username);
-            if (u.username.equals(username)) {
-                existance = true;
-            }
-        }
-        return existance;
-    }
-
-    //Extract all the information from the database...
-    public static HashMap<String, Object> ExtractAllFromDatabase(){
-        DocumentReference df = RESTdb.collection("LoginInformation").document("LoginInformation");
-        HashMap<String, Object>[] abc = new HashMap[]{ new HashMap<String, Object>() };
-        df.get().addOnSuccessListener(process-> {
-            final HashMap<String, Object> a = ((HashMap<String, Object>)process.getData()); //all the data stored in a variable named a..
-            //DO SOMETHING TO MAKE THE VALUE EXIT THE LAMBDA HOWWWWW
-            //put a into something???
-            Log.d("Data size", "" + a.size()); //99
-            Log.d("Current Data", "" + a);
-            //Conclusion: You cannot set anything from within a lambda.
-
-        });
-
-        Log.d("Return Result", "" + abc[0]);
-
-        return new HashMap<String, Object>();
-    }
-
-    //Convert the ExtractAllFromDatabase() into an HashMap that stores User objects
-    //unpackage the object and form a user
-    public static ArrayList<User> ConvertToUser(){
-        ArrayList<Integer> idList = new ArrayList<Integer>();
-        ArrayList<String> nameList = new ArrayList<String>();
-        ArrayList<String> descriptionList = new ArrayList<String>();
-        ArrayList<String> usernameList = new ArrayList<String>();
-        ArrayList<String> passwordList = new ArrayList<String>();
-        ArrayList<Boolean> followedList = new ArrayList<Boolean>();
-        ArrayList<ArrayList<String>> followedWhoList = new ArrayList<ArrayList<String>>();
-        ArrayList<String> hashMapKeys = new ArrayList<String>();
-        for (String s : ExtractAllFromDatabase().keySet()){
-            hashMapKeys.add(s); //store all the keys into this array.
-        }
-        ArrayList<Object> rawUserData = new ArrayList<Object>();
-        for (Object obj : ExtractAllFromDatabase().values()){
-            rawUserData.add(obj);
-            Log.d("Raw data", obj.toString());
-        }
-        for (Object obj : rawUserData){
-            String[] a = obj.toString().split("=");
-            for (int i = 0; i < a.length; i++){
-                if (i + 1 < a.length){
-                    if (a[i].contains("name")){
-                        //then the next line must contain the required data.
-                        //a[i+1].split(",")[0] will contain the result..
-                        nameList.add(a[i+1].split(",")[0]);
-                    }
-                    else if (a[i].contains("description")){
-                        //then the next line must contain the required data
-                        descriptionList.add(a[i+1].split(",")[0]);
-                    }
-                    else if (a[i].contains("followed")){
-                        //then the next line must contain the required data
-                        followedList.add(Boolean.parseBoolean(a[i+1].split(",")[0]));
-                    }
-                    else if (a[i].contains("followedWho")){
-                        //then the next line must contain the required data
-                        followedWhoList.add(new ArrayList<String>(Arrays.asList(a[i+1].split(",")[0])));
-                    }
-                    else if (a[i].contains("username")){
-                        //then the next line must contain the required data
-                        usernameList.add(a[i+1].split(",")[0]);
-                    }
-                    else if (a[i].contains("password")){
-                        //then the next line must contain the required data
-                        passwordList.add(a[i+1].split(",")[0]);
-                    }
-                    else if (a[i].contains("id")){
-                        //then the next line must contain the required data
-                        idList.add(Integer.parseInt(a[i+1].split(",")[0]));
-                    }
-                }
-            }
-        }
-        ArrayList<User> userUserList = new ArrayList<User>();
-        for (int i = 0; i < usernameList.size(); i++){
-            userUserList.add(new User(idList.get(i), nameList.get(i), descriptionList.get(i), usernameList.get(i), passwordList.get(i), followedList.get(i), followedWhoList.get(i)));
-        }
-        return userUserList;
-    }
-
     //Find the target user
     //param1 contains the updated userList, param2 is the username of the user.....
     public void UserDatabaseUpdateHandling(ArrayList<String> followed, String username){
@@ -499,42 +275,233 @@ public class user_landing extends AppCompatActivity {
     //dangerous, use this method with care
     public static void DeleteEntiresFirebaseFirestore(){
         RESTdb.collection("LoginInformation").document("LoginInformation")
-                .delete()
-                .addOnSuccessListener((Void)->{
-                    Log.d("SDF", "Database successfully deleted!");
-                })
-                .addOnFailureListener((Void)->{
-                    Log.d("SDF", "Database failed to delete. Please try again...");
-                });
+        .delete()
+        .addOnSuccessListener((Void)->{
+            Log.d("SDF", "Database successfully deleted!");
+        })
+        .addOnFailureListener((Void)->{
+            Log.d("SDF", "Database failed to delete. Please try again...");
+        });
     }
 
     public static boolean databaseHas100Entries(){
-        return ExtractAllFromDatabase().size() < 100;
+        return new user_landing().ExtractAllFromDatabase().size() < 100;
     }
 
     //dangerous, use this method with care
-    public static void WriteToFirebaseFirestore(HashMap<String, User> userData){
+    public static void WriteToFirebaseFirestore(HashMap<String, User> userData) {
         if (databaseHas100Entries()) {
-            Log.d("Datasize", Integer.toString(ExtractAllFromDatabase().size()));
+            Log.d("Datasize", Integer.toString(new user_landing().ExtractAllFromDatabase().size()));
             Log.d("Function entry", "Starting to write");
             RESTdb.collection("LoginInformation").document("LoginInformation")
-                    .set(userData)
-                    .addOnSuccessListener((Void) -> {
-                        Log.d("DocumentUpdateStatus", "Data append successful");
-                    })
-                    .addOnFailureListener((Void) -> {
-                        Log.d("DocumentUpdateStatus", "Data append failed");
-                    });
-        }
-        else {
+            .set(userData)
+            .addOnSuccessListener((Void) -> {
+                Log.d("DocumentUpdateStatus", "Data append successful");
+            })
+            .addOnFailureListener((Void) -> {
+                Log.d("DocumentUpdateStatus", "Data append failed");
+            });
+        } else {
             Log.d("Message", "Has 100 entries!");
             return;
         }
     }
 
+    public void Intermediary(){
+        DocumentReference df = RESTdb.collection("LoginInformation").document("LoginInformation");
+        HashMap<String, Object>[] abc = new HashMap[]{ new HashMap<String, Object>() };
+        df.get().addOnSuccessListener(process-> {
+            final HashMap<String, Object> a = ((HashMap<String, Object>)process.getData()); //all the data stored in a variable named a..
+            Log.d("Data size", "" + a.size()); //99
+            Log.d("Current Data", "" + a);
+            ((TextView) findViewById(R.id.tempString)).setText(a.toString());
+            ((TextView) findViewById(R.id.databaseStringLength)).setText(Integer.toString(a.size()));
+        });
+    }
+
+    //Extract all the information from the database...
+    public HashMap<String, Object> ExtractAllFromDatabase() {
+        //Full firebase firestore document represented as a string
+        HashMap<String, Object> a = new HashMap<>();
+        /*String tempText = ((TextView) findViewById(R.id.tempString)).getText().toString();
+        a.put("IDK", tempText);*/
+        return new HashMap<>();
+    }
+
+    // use the 'FirebaseFirestore' to write to the Firebase storage...
+    public static FirebaseFirestore RESTdb = FirebaseFirestore.getInstance();
+
+    //check for whether the username exists in the database. false
+    //Firestorage (root) -> collection node -> document node
+    public Boolean isAnEntryInDatabase(String username, String string, String dataStrLen, String dataRawStrLen){
+        boolean existance = false;
+        Log.d("isAnEntryInDatabase", "Function begins execution....");
+        Log.d("Size", "" + ConvertToUser(string, dataStrLen, dataRawStrLen).size());
+
+        return existance;
+    }
+
+    //This method is only used to log extremely long messages
+    public static void DebugLog(String tag, String msg){
+        int maxLogSize = 1000;
+        for(int i = 0; i <= msg.length() / maxLogSize; i++) {
+            int start = i * maxLogSize;
+            int end = (i+1) * maxLogSize;
+            end = end > msg.length() ? msg.length() : end;
+            Log.d(tag, msg.substring(start, end));
+        }
+    }
+
+    //Convert the ExtractAllFromDatabase() into an HashMap that stores User objects
+    //unpackage the object and form a user
+    public static ArrayList<User> ConvertToUser(String string, String dataStrLen, String dataRawStrLen) {
+        Log.d("ConvertingToUser", "Converting to user..");
+        Log.d("NumOfEntries", dataStrLen);
+        Log.d("NumRawEntries", dataRawStrLen);
+        ArrayList<Integer> idList = new ArrayList<Integer>();
+        ArrayList<String> nameList = new ArrayList<String>();
+        ArrayList<String> descriptionList = new ArrayList<String>();
+        ArrayList<String> usernameList = new ArrayList<String>();
+        ArrayList<String> passwordList = new ArrayList<String>();
+        ArrayList<Boolean> followedList = new ArrayList<Boolean>();
+        ArrayList<ArrayList<String>> followedWhoList = new ArrayList<ArrayList<String>>();
+        String[] a = string.split("="); //split
+        String intermediate = "";
+        String tertiary = "";
+        String beyondTertiary = "";
+        for (int i = 0; i < a.length; i++) {
+            intermediate += a[i];
+        }
+        String[] b = intermediate.split("\\{");
+        for (int i = 0; i < b.length; i++) {
+            tertiary += b[i];
+        }
+        String step = tertiary.replace("password", "").replace("name", "").replace("description", "").replace("followedWho", "").replace("followed", "").replace("id", "");
+        String[] c = step.split("\\}");
+        for (int i = 0; i < c.length; i++) {
+            beyondTertiary += c[i];
+        }
+        String step2 = beyondTertiary.replace("user", "");
+        DebugLog("STEP2", step2);
+        String[] d = step2.split(" ");
+        String step3 = "";
+        for (int i = 0; i < d.length; i++) {
+            Log.d("SplitStringStage4", "" + d[i]);
+            step3 += d[i];
+        }
+        DebugLog("TAGMESSAGE", "" + step3);
+        String[] e = step3.split(",");
+        ArrayList<String> innerArray = new ArrayList<>();
+        for (int i = 0; i < e.length; i++) {
+            Log.d("SplitStringStage9", e[i]);
+            if (i + 1 < e.length && i - 1 >= 0 && i - 3 >= 0) { //Check the last character whether does it equate to a single underscore character, if not check the character to the right of the underscore
+                if (
+                    (
+                        (
+                            e[i].contains("_") &&
+                            (e[i].substring(e[i].lastIndexOf("_")).length() > 1
+                            ? e[i].endsWith("]") ||
+                                (e[i].substring(e[i].lastIndexOf("_")).charAt(1) >= '0' && e[i].substring(e[i].lastIndexOf("_")).charAt(1) <= '9') ||
+                                //Length must only be 1
+                                (
+                                    (
+                                        (e[i].substring(e[i].lastIndexOf("_")).charAt(1) >= 'a' && e[i].substring(e[i].lastIndexOf("_")).charAt(1) <= 'z') ||
+                                        (e[i].substring(e[i].lastIndexOf("_")).charAt(1) >= 'A' && e[i].substring(e[i].lastIndexOf("_")).charAt(1) <= 'Z')
+                                    )
+                                )
+                            : e[i].endsWith("_"))
+                        )
+                    )
+                ) {
+                    //If e[i].startsWith("[") then add a breakpoint, terminate when the loop meets a string that contains "]" inside
+                    //Keep adding the items that is between strings that have met the e[i].startsWith("]") condition and the e[i].endsWith("]") condition
+                    innerArray.add(
+                        e[i].startsWith("[")
+                            ? e[i].replace("[", "{")
+                            : e[i].endsWith("]")
+                                ? e[i].replace("]", "}")
+                                : e[i]
+                    );
+                    for (int j = 0; j < innerArray.size(); ++j){
+                        //Perform string manipulation and slicing '(internal array string grouping)'
+                        if (j + 1 < innerArray.size() && j - 1 >= 0){
+                            if (innerArray.get(j+1).contains("{") && innerArray.get(j-1).contains("}")){
+                                innerArray.remove(innerArray.get(j));
+                            }
+                        }
+                    }
+                    //Then perform dicing
+
+                }
+                else if (e[i].contains("Name-") && e[i+1].contains("Description-")) {
+                    nameList.add(e[i]);
+                }
+                else if (e[i].contains("Description-") && e[i-1].contains("Name-")) {
+                    descriptionList.add(e[i]);
+                }
+                else if (e[i].equals("true") || e[i].equals("false")) {
+                    followedList.add(Boolean.parseBoolean(e[i]));
+                }
+                else if (e[i].length() == 2 && (e[i].charAt(0) >= '0' && e[i].charAt(1) <= '9')){
+                    idList.add(Integer.parseInt(e[i]));
+                }
+                else if (e[i].startsWith("User")){ //Password go here
+                    passwordList.add(
+                        e[i]
+                        .replace("User", "")
+                        .replace(
+                            (Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9").contains(Character.toString(e[i].charAt(5)))
+                            ? e[i].substring(4, 6)
+                            : Character.toString(e[i].charAt(4)))
+                        , "")
+                    );
+                }
+            }
+        }
+        Log.d("INNERARRAY", "" + innerArray);
+        Log.d("CURRLEN", "" + innerArray.size());
+        ArrayList<User> userUserList = new ArrayList<User>();
+        if (idList.size() == followedList.size() && idList.size() == descriptionList.size() && idList.size() == nameList.size() && idList.size() == passwordList.size() && idList.size() == followedWhoList.size() && idList.size() == usernameList.size()) {
+            //Share the same for loop if only the lengths of all the arrays involved are exactly equal to one another.
+            for (int i = 0; i < idList.size(); ++i) {
+                userUserList.add(
+                    new User(
+                        idList.get(i),
+                        nameList.get(i),
+                        descriptionList.get(i),
+                        usernameList.get(i),
+                        passwordList.get(i),
+                        followedList.get(i),
+                        followedWhoList.get(i)
+                    )
+                );
+            }
+        }
+        else {
+
+        }
+        Log.d("ReturnTheUserList", "Returning the array from the method....");
+        return userUserList;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+
+        //run through the entire SQLite database again......
+        if (dbHandler.GetAllUsers().size() == 0) {
+            Log.d("Redirect to login", "Going to user login activity");
+            setContentView(R.layout.practical5_loginpage); //Set this content view if SharedPreferences contains NO DATA
+            Intermediary(); //Load the information into an invisible textview LOL
+        }
+        else {
+            Log.d(TAG, "Else statement executed");
+            //straight away go to user_main.java
+            Intent transporter = new Intent();
+            transporter.setClassName("sg.np.edu.mad.animationtest.user_landing", "sg.np.edu.mad.animationtest.user_main");
+            startActivity(transporter);
+            finish();
+        }
 
         //Repeat this process for 100 times
         do {
@@ -557,29 +524,22 @@ public class user_landing extends AppCompatActivity {
             String name = "Name-" + nameIntegerSegment;
             String description = "Description-" + descriptionIntegerSegment;
             //put all the information in a user object.
-            userList.add(new User(
-                            tag,
-                            name,
-                            description,
-                            usernameList.get(tag - 1),
-                            passwordList.get(tag - 1),
-                            false,
-                            new ArrayList<>() //add a blank ArrayList
-                    )
+            userList.add(new User
+                (
+                    tag,
+                    name,
+                    description,
+                    usernameList.get(tag - 1),
+                    passwordList.get(tag - 1),
+                    false,
+                    new ArrayList<>() //add a blank ArrayList
+                )
             );
             tag++;
         }
         while (tag < 100);
 
         Log.d(TAG, "Code reached this checkpoint: Checkpoint 1");
-
-        /*
-        //READ LOG.D to check for password existance.
-        for (int i = 0; i < userList.size(); i++) {
-            Log.d(USERNAME, (userList.get(i).username));
-            Log.d(PASSWORD, (userList.get(i).password) + "\n========================================================================");
-        }
-         */
 
         //run AppendFollowerList()
         for (int i = 0; i < AppendIntoActualArray().size(); i++){
@@ -595,6 +555,7 @@ public class user_landing extends AppCompatActivity {
 
         //READ LOG.D to check for password existance.
         for (int i = 0; i < userList.size(); i++) {
+            Log.d("ID", "" + userList.get(i).id);
             Log.d(USERNAME, (userList.get(i).username));
             Log.d(PASSWORD, (userList.get(i).followedWho) + "\n========================================================================");
         }
@@ -604,20 +565,6 @@ public class user_landing extends AppCompatActivity {
 
         //DeleteEntiresFirebaseFirestore();
         //dbHandler.ClearDatabase();
-
-        //run through the entire SQLite database again......
-        if (dbHandler.GetAllUsers().size() == 0) {
-            Log.d("Redirect to login", "Going to user login activity");
-            setContentView(R.layout.practical5_loginpage); //Set this content view if SharedPreferences contains NO DATA
-        }
-        else {
-            Log.d(TAG, "Else statement executed");
-            //straight away go to user_main.java
-            Intent transporter = new Intent();
-            transporter.setClassName("sg.np.edu.mad.animationtest.user_landing", "sg.np.edu.mad.animationtest.user_main");
-            startActivity(transporter);
-            finish();
-        }
 
         Button myLoginButton = (Button) findViewById(R.id.myLoginButton);
 
@@ -635,33 +582,38 @@ public class user_landing extends AppCompatActivity {
         });
 
         myLoginButton.setOnClickListener(ThenFunction -> {
+            Log.d("DatabaseFullStringLen", "" + ((TextView) findViewById(R.id.tempString)).getText().length());
+            DebugLog("DatabaseFullString", ((TextView) findViewById(R.id.tempString)).getText().toString());
+            Log.d("DatabaseEntries", ((TextView) findViewById(R.id.databaseStringLength)).getText().toString());
+            String result = ((TextView) findViewById(R.id.tempString)).getText().toString();
+            String result1 = ((TextView) findViewById(R.id.databaseStringLength)).getText().toString();
+            String result2 = Integer.toString(((TextView) findViewById(R.id.tempString)).getText().length());
             //Take in the password.
             EditText passwordTextField = (EditText) findViewById(R.id.passwordField);
             //then take in the username
             EditText usernameTextField = (EditText) findViewById(R.id.usernameField);
             Log.d(TAG, "The code reached here");
-            if (passwordTextField.getText().length() != 0 || usernameTextField.getText().length() != 0) {
+            if (passwordTextField.getText().length() != 0 && usernameTextField.getText().length() != 0) {
                 Log.d("Account verification", "Verification started....");
-                if (!isAnEntryInDatabase(usernameTextField.getText().toString())) {
+                if (!isAnEntryInDatabase(usernameTextField.getText().toString(), result, result1, result2)) {
                     alertDialog
-                            .setTitle("User not found")
-                            .setMessage("The entered user cannot be found. Do you want to create a new account?")
-                            .setPositiveButton(
-                                    "Yes",
-                                    (DialogInterface di, int i) -> {
-                                        di.dismiss();
-                                        //then redirect to another activity...
-                                        Intent andThenRedirect = new Intent(user_landing.this, create_user_account_funcitonality.class);
-                                        startActivity(andThenRedirect);
-                                    }
-                            )
-                            .setNegativeButton(
-                                    "No",
-                                    (DialogInterface di, int i) -> {
-                                        di.dismiss();
-                                    }
-                            );
-
+                    .setTitle("User not found")
+                    .setMessage("The entered user cannot be found. Do you want to create a new account?")
+                    .setPositiveButton(
+                        "Yes",
+                        (DialogInterface di, int i) -> {
+                            di.dismiss();
+                            //then redirect to another activity...
+                            Intent andThenRedirect = new Intent(user_landing.this, create_user_account_funcitonality.class);
+                            startActivity(andThenRedirect);
+                        }
+                    )
+                    .setNegativeButton(
+                        "No",
+                        (DialogInterface di, int i) -> {
+                            di.dismiss();
+                        }
+                    );
                     //launch the dialog
                     AlertDialog message = alertDialog.create();
                     message.show();
@@ -671,8 +623,8 @@ public class user_landing extends AppCompatActivity {
                     //perform login authentication. Check if the corresponding password is correct
                     //values() stores all the User Objects
                     //since FindUser( ) returns a user object, we just need to extract the password information and do a quick comparison..
-                    for (int i = 0; i < ConvertToUser().size(); i++){
-                        if ((ConvertToUser().get(i).password).equals(passwordTextField.getText().toString())) {
+                    for (int i = 0; i < ConvertToUser(result, result1, result2).size(); i++){
+                        if ((ConvertToUser(result, result1, result2).get(i).password).equals(passwordTextField.getText().toString())) {
                             Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
                             Log.d(TAG, "User login is successful at this point");
                             //Add the user object into the SQLDB..
