@@ -331,13 +331,17 @@ public class user_landing extends AppCompatActivity {
     // use the 'FirebaseFirestore' to write to the Firebase storage...
     public static FirebaseFirestore RESTdb = FirebaseFirestore.getInstance();
 
-    //check for whether the username exists in the database. false
+    //check for whether the username exists in the database, false if it does not exist
     //Firestorage (root) -> collection node -> document node
     public Boolean isAnEntryInDatabase(String username, String string, String dataStrLen, String dataRawStrLen){
         boolean existance = false;
         Log.d("isAnEntryInDatabase", "Function begins execution....");
         Log.d("Size", "" + ConvertToUser(string, dataStrLen, dataRawStrLen).size());
-
+        for (User u : ConvertToUser(string, dataStrLen, dataRawStrLen)){
+            if (u.username.equals(username)){
+                existance = true;
+            }
+        }
         return existance;
     }
 
@@ -364,7 +368,7 @@ public class user_landing extends AppCompatActivity {
         ArrayList<String> usernameList = new ArrayList<String>();
         ArrayList<String> passwordList = new ArrayList<String>();
         ArrayList<Boolean> followedList = new ArrayList<Boolean>();
-        ArrayList<ArrayList<String>> followedWhoList = new ArrayList<ArrayList<String>>();
+        ArrayList<HashSet<String>> followedWhoList = new ArrayList<HashSet<String>>();
         String[] a = string.split("="); //split
         String intermediate = "";
         String tertiary = "";
@@ -389,13 +393,24 @@ public class user_landing extends AppCompatActivity {
             Log.d("SplitStringStage4", "" + d[i]);
             step3 += d[i];
         }
-        DebugLog("TAGMESSAGE", "" + step3);
+        DebugLog("TAGMESSAGE", "" + step3); //NO problem till this point
         String[] e = step3.split(",");
         ArrayList<String> innerArray = new ArrayList<>();
-        for (int i = 0; i < e.length; i++) {
-            Log.d("SplitStringStage9", e[i]);
-            if (i + 1 < e.length && i - 1 >= 0 && i - 3 >= 0) { //Check the last character whether does it equate to a single underscore character, if not check the character to the right of the underscore
-                if (
+        for (int i = 0; i < e.length; ++i) {
+            DebugLog("SplitStringStage9", e[i]);
+            if (i + 1 <= e.length - 1 && i - 1 >= 0) { //Check the last character whether does it equate to a single underscore character, if not check the character to the right of the underscore
+                if (e[i].startsWith("User")){ //Password go here
+                    passwordList.add(
+                        e[i]
+                        .replace("User", "")
+                        .replace(
+                            (Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9").contains(Character.toString(e[i].charAt(5)))
+                            ? e[i].substring(4, 6)
+                            : Character.toString(e[i].charAt(4)))
+                            , "")
+                    );
+                }
+                if ( //followedWho list go here
                     (
                         (
                             e[i].contains("_") &&
@@ -430,40 +445,100 @@ public class user_landing extends AppCompatActivity {
                             }
                         }
                     }
-                    //Then perform dicing
-
                 }
-                else if (e[i].contains("Name-") && e[i+1].contains("Description-")) {
+                //DO NOT USE OVERLAPPING CONDITIONS
+                if (e[i].contains("Name-")) {
                     nameList.add(e[i]);
                 }
-                else if (e[i].contains("Description-") && e[i-1].contains("Name-")) {
+                if (e[i].contains("Description-")) {
                     descriptionList.add(e[i]);
                 }
-                else if (e[i].equals("true") || e[i].equals("false")) {
+                if (e[i].equals("true") || e[i].equals("false")) {
                     followedList.add(Boolean.parseBoolean(e[i]));
                 }
-                else if (e[i].length() == 2 && (e[i].charAt(0) >= '0' && e[i].charAt(1) <= '9')){
+                if (e[i].length() <= 2 && (e[i].charAt(0) >= '0' && e[i].charAt(0) <= '9')){
                     idList.add(Integer.parseInt(e[i]));
                 }
-                else if (e[i].startsWith("User")){ //Password go here
-                    passwordList.add(
-                        e[i]
-                        .replace("User", "")
-                        .replace(
-                            (Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9").contains(Character.toString(e[i].charAt(5)))
-                            ? e[i].substring(4, 6)
-                            : Character.toString(e[i].charAt(4)))
-                        , "")
-                    );
+                if (e[i].contains("_") && e[i+1].startsWith("User")){
+                    usernameList.add(e[i]);
                 }
             }
         }
+        for (int i = 0; i < innerArray.size(); i++){
+            if (innerArray.get(i).contains("{")){
+                followedWhoList.add(new HashSet<>());
+            }
+        }
         Log.d("INNERARRAY", "" + innerArray);
-        Log.d("CURRLEN", "" + innerArray.size());
+        Log.d("INNERARRAYSIZEBEFORE", "" + innerArray.size());
+        Log.d("CURRLENPASSWORD", "" + passwordList.size());
+        Log.d("CURRLENNAME", "" + nameList.size());
+        Log.d("CURRLENFOLLOWED", "" + followedList.size());
+        Log.d("CURRLENDESCRIPTION", "" + descriptionList.size());
+        Log.d("CURRLENID", "" + idList.size());
+        Log.d("CURRLENUSERNAME", "" + usernameList.size());
+        Log.d("CURRLENFOLLOWEDWHO", "" + followedWhoList.size());
+        int j = 0;
+        int startingIndex = 0;
+        int endingIndex = 0;
+        for(; ; ) {
+            if (innerArray.size() != 0 && j < followedWhoList.size()) {
+                Log.d("REPEATING", "The process is currently repeating");
+                for (int i = 0; i < innerArray.size(); i++) {
+                    if (innerArray.get(i).contains("{")) {
+                        startingIndex = innerArray.indexOf(innerArray.get(i));
+                        Log.d("STARTINGINDEX", "" + startingIndex);
+                        //continue; //skipping subsequent elements that do not contain "{" in it
+                    }
+                    if (innerArray.get(i).contains("}")) {
+                        endingIndex = innerArray.indexOf(innerArray.get(i));
+                        Log.d("ENDINGINDEX", "" + endingIndex);
+                        break;
+                    }
+                }
+                //Create a boundary (range)
+                do {
+                    Log.d("BoundaryEntry", "If Statement Entry!");
+                    Log.d("CURRVALJ", "" + j);
+                    followedWhoList.get(j).add(
+                        innerArray.get(startingIndex).contains("{")
+                        ? innerArray.get(startingIndex).replace("{", "")
+                        : innerArray.get(startingIndex).contains("}")
+                        ? innerArray.get(startingIndex).replace("}", "")
+                        : innerArray.get(startingIndex)
+                    );
+                    ++startingIndex; //Move on to next element
+                } while (startingIndex <= endingIndex);
+                //WHEN DONE:
+                //UPON SUCCESSFUL DELETION
+                startingIndex = 0;
+                do {
+                    //Delete the element from the innerArray
+                    innerArray.remove(startingIndex);
+                    Log.d("INDEX", "" + startingIndex);
+                    Log.d("DELETE", "Deleting items from the array after iteration " + innerArray.get(startingIndex));
+                    ++startingIndex;
+                    Log.d("EndingIndexCurrent", "" + endingIndex);
+                }
+                while (startingIndex <= endingIndex);
+                j++;
+                startingIndex = 0; //initialize
+                endingIndex = 0; //initialize
+                Log.d("ENDINGINDEXINITIALIZATION", "" + endingIndex);
+            }
+            else {
+                Log.d("FINALINNERARRAYLENGTH", "" + innerArray.size()); //must be 0
+                Log.d("BREAK", "Broke out of infinite loop");
+                break;
+            }
+        }
+        DebugLog("INNERARRAYOUT", "" + innerArray); //SHOULD BE AN EMPTY LIST
+        DebugLog("FINALARRAYOUTCOME", "" + followedWhoList);
+        Log.d("FINALARRAYSIZE", "" + followedWhoList.size());
         ArrayList<User> userUserList = new ArrayList<User>();
         if (idList.size() == followedList.size() && idList.size() == descriptionList.size() && idList.size() == nameList.size() && idList.size() == passwordList.size() && idList.size() == followedWhoList.size() && idList.size() == usernameList.size()) {
             //Share the same for loop if only the lengths of all the arrays involved are exactly equal to one another.
-            for (int i = 0; i < idList.size(); ++i) {
+            for (int i = 0; i < idList.size(); i++) {
                 userUserList.add(
                     new User(
                         idList.get(i),
@@ -472,13 +547,10 @@ public class user_landing extends AppCompatActivity {
                         usernameList.get(i),
                         passwordList.get(i),
                         followedList.get(i),
-                        followedWhoList.get(i)
+                        null
                     )
                 );
             }
-        }
-        else {
-
         }
         Log.d("ReturnTheUserList", "Returning the array from the method....");
         return userUserList;

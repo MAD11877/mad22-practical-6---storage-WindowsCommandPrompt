@@ -91,8 +91,7 @@ public class create_user_account_funcitonality extends AppCompatActivity {
                     //create a new user object and then send it into Google FirebaseFirestore
                     HashMap<String, User> newUser = new HashMap<String, User>();
                     //int id, String name, String description, String username, String password, ArrayList<String> followedWho
-                    //User user = new User((((User) user_landing.ExtractAllFromDatabase().get(user_landing.ExtractAllFromDatabase().size() - 1)).id) + 2, ("Name-" + (new Random().nextInt())), ("Description-" + (new Random().nextInt())), user_landing.S(), user_landing.U(), false, new ArrayList<String>());
-                    //newUser.put("UserCustom", user);
+                    //Go into the firebase database and find the last id number
 
                     Toast.makeText(this, "New account has been created....", Toast.LENGTH_SHORT);
                     Wait(1000);
