@@ -368,7 +368,7 @@ public class user_landing extends AppCompatActivity {
         ArrayList<String> usernameList = new ArrayList<String>();
         ArrayList<String> passwordList = new ArrayList<String>();
         ArrayList<Boolean> followedList = new ArrayList<Boolean>();
-        ArrayList<HashSet<String>> followedWhoList = new ArrayList<HashSet<String>>();
+        ArrayList<ArrayList<String>> followedWhoList = new ArrayList<ArrayList<String>>();
         String[] a = string.split("="); //split
         String intermediate = "";
         String tertiary = "";
@@ -396,55 +396,70 @@ public class user_landing extends AppCompatActivity {
         DebugLog("TAGMESSAGE", "" + step3); //NO problem till this point
         String[] e = step3.split(",");
         ArrayList<String> innerArray = new ArrayList<>();
-        for (int i = 0; i < e.length; ++i) {
+        int counter = 0;
+        for (int i = 0; i < e.length; i++) {
             DebugLog("SplitStringStage9", e[i]);
-            if (i + 1 <= e.length - 1 && i - 1 >= 0) { //Check the last character whether does it equate to a single underscore character, if not check the character to the right of the underscore
-                if (e[i].startsWith("User")){ //Password go here
-                    passwordList.add(
-                        e[i]
-                        .replace("User", "")
-                        .replace(
-                            (Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9").contains(Character.toString(e[i].charAt(5)))
-                            ? e[i].substring(4, 6)
-                            : Character.toString(e[i].charAt(4)))
-                            , "")
-                    );
-                }
-                if ( //followedWho list go here
+            if (e[i].startsWith("User")){ //Password go here
+                passwordList.add(
+                e[i]
+                .replace("User", "")
+                .replace(
+                ((Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9").contains(Character.toString(e[i].charAt(5)))) && (Arrays.asList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9").contains(Character.toString(e[i].charAt(4))))
+                ? e[i].substring(4, 6)
+                : Character.toString(e[i].charAt(4)))
+                , "")
+                );
+            }
+            if ( //followedWho list go here   FIXME: INCONSISTENT ARRAY LENGTH FOR FOLLOWEDWHO
+                (
                     (
+                        //IMPORTANT -> '[]' OR '[Username_key?]' instead of '[Username1_key?, Username2_key?]
                         (
-                            e[i].contains("_") &&
-                            (e[i].substring(e[i].lastIndexOf("_")).length() > 1
+                            //Each username has a underscore character inside
+                            //length of the string after and including the underscore character greater than 1
+                            (e[i].contains("_") && (e[i].substring(e[i].lastIndexOf("_")).length() > 1))
+                            //might end with the terminating character
                             ? e[i].endsWith("]") ||
-                                (e[i].substring(e[i].lastIndexOf("_")).charAt(1) >= '0' && e[i].substring(e[i].lastIndexOf("_")).charAt(1) <= '9') ||
-                                //Length must only be 1
-                                (
-                                    (
-                                        (e[i].substring(e[i].lastIndexOf("_")).charAt(1) >= 'a' && e[i].substring(e[i].lastIndexOf("_")).charAt(1) <= 'z') ||
-                                        (e[i].substring(e[i].lastIndexOf("_")).charAt(1) >= 'A' && e[i].substring(e[i].lastIndexOf("_")).charAt(1) <= 'Z')
-                                    )
-                                )
-                            : e[i].endsWith("_"))
+                            //last character is 0 to 9 OR
+                            (e[i].substring(e[i].lastIndexOf("_")).charAt(1) >= '0' && e[i].substring(e[i].lastIndexOf("_")).charAt(1) <= '9') ||
+                            (
+                                //last character is any small letter alphabet from 'a' to 'z' OR
+                                (e[i].substring(e[i].lastIndexOf("_")).charAt(1) >= 'a' && e[i].substring(e[i].lastIndexOf("_")).charAt(1) <= 'z') ||
+                                //last character is any capital letter alphabet from 'A' to 'Z'
+                                (e[i].substring(e[i].lastIndexOf("_")).charAt(1) >= 'A' && e[i].substring(e[i].lastIndexOf("_")).charAt(1) <= 'Z')
+                            )
+                            //if length is not 1 then check whether the string ends of with an underscore character
+                            //BUT WHAT IF the element is just simply '[]'???
+                            : e[i].endsWith("_") || e[i].contains("[]")
                         )
                     )
-                ) {
-                    //If e[i].startsWith("[") then add a breakpoint, terminate when the loop meets a string that contains "]" inside
-                    //Keep adding the items that is between strings that have met the e[i].startsWith("]") condition and the e[i].endsWith("]") condition
-                    innerArray.add(
-                        e[i].startsWith("[")
-                            ? e[i].replace("[", "{")
-                            : e[i].endsWith("]")
-                                ? e[i].replace("]", "}")
-                                : e[i]
-                    );
-                    for (int j = 0; j < innerArray.size(); ++j){
-                        //Perform string manipulation and slicing '(internal array string grouping)'
-                        if (j + 1 < innerArray.size() && j - 1 >= 0){
-                            if (innerArray.get(j+1).contains("{") && innerArray.get(j-1).contains("}")){
-                                innerArray.remove(innerArray.get(j));
-                            }
+                )
+            ) {
+                Log.d("FILTEREDELEMENTS", e[i]);
+                //If e[i].startsWith("[") then add a breakpoint, terminate when the loop meets a string that contains "]" inside
+                //Keep adding the items that is between strings that have met the e[i].startsWith("]") condition and the e[i].endsWith("]") condition
+                innerArray.add(
+                    e[i].startsWith("[")
+                    ? e[i].replace("[", "{")
+                    : e[i].endsWith("]")
+                    ? e[i].replace("]", "}")
+                    : e[i].startsWith("[") && e[i].endsWith("]")
+                    ? e[i].replace("[", "{").replace("]", "}")
+                    : e[i]
+                );
+                //Remove sandwiched usernames
+                for (int j = 0; j < innerArray.size(); ++j){
+                    //Perform string manipulation and slicing '(internal array string grouping)'
+                    if (j + 1 < innerArray.size() && j - 1 >= 0){
+                        if (innerArray.get(j+1).contains("{") && innerArray.get(j-1).contains("}")){
+                            innerArray.remove(innerArray.get(j));
                         }
                     }
+                }
+            }
+            if (i - 1 >= 0) { //Check the last character whether does it equate to a single underscore character, if not check the character to the right of the underscore
+                if (e[i].contains("_") && (e[i-1].equals("true") || e[i-1].equals("false"))){
+                    usernameList.add(e[i]);
                 }
                 //DO NOT USE OVERLAPPING CONDITIONS
                 if (e[i].contains("Name-")) {
@@ -459,17 +474,15 @@ public class user_landing extends AppCompatActivity {
                 if (e[i].length() <= 2 && (e[i].charAt(0) >= '0' && e[i].charAt(0) <= '9')){
                     idList.add(Integer.parseInt(e[i]));
                 }
-                if (e[i].contains("_") && e[i+1].startsWith("User")){
-                    usernameList.add(e[i]);
-                }
             }
         }
         for (int i = 0; i < innerArray.size(); i++){
             if (innerArray.get(i).contains("{")){
-                followedWhoList.add(new HashSet<>());
+                followedWhoList.add(new ArrayList<>());
             }
         }
-        Log.d("INNERARRAY", "" + innerArray);
+        innerArray.remove(innerArray.size() - 1); //Remove the last element from the array
+        DebugLog("INNERARRAY", "" + innerArray);
         Log.d("INNERARRAYSIZEBEFORE", "" + innerArray.size());
         Log.d("CURRLENPASSWORD", "" + passwordList.size());
         Log.d("CURRLENNAME", "" + nameList.size());
@@ -481,16 +494,16 @@ public class user_landing extends AppCompatActivity {
         int j = 0;
         int startingIndex = 0;
         int endingIndex = 0;
-        for(; ; ) {
+        for (; ; ) {
             if (innerArray.size() != 0 && j < followedWhoList.size()) {
                 Log.d("REPEATING", "The process is currently repeating");
                 for (int i = 0; i < innerArray.size(); i++) {
-                    if (innerArray.get(i).contains("{")) {
+                    if (innerArray.get(i).startsWith("{")) {
                         startingIndex = innerArray.indexOf(innerArray.get(i));
                         Log.d("STARTINGINDEX", "" + startingIndex);
                         //continue; //skipping subsequent elements that do not contain "{" in it
                     }
-                    if (innerArray.get(i).contains("}")) {
+                    if (innerArray.get(i).endsWith("}")) {
                         endingIndex = innerArray.indexOf(innerArray.get(i));
                         Log.d("ENDINGINDEX", "" + endingIndex);
                         break;
@@ -509,14 +522,12 @@ public class user_landing extends AppCompatActivity {
                     );
                     ++startingIndex; //Move on to next element
                 } while (startingIndex <= endingIndex);
-                //WHEN DONE:
-                //UPON SUCCESSFUL DELETION
-                startingIndex = 0;
+                //WHEN DONE: UPON SUCCESSFUL DELETION
+                startingIndex = 0; //initialize again to prepare for deletion
                 do {
                     //Delete the element from the innerArray
                     innerArray.remove(startingIndex);
                     Log.d("INDEX", "" + startingIndex);
-                    Log.d("DELETE", "Deleting items from the array after iteration " + innerArray.get(startingIndex));
                     ++startingIndex;
                     Log.d("EndingIndexCurrent", "" + endingIndex);
                 }
@@ -536,9 +547,9 @@ public class user_landing extends AppCompatActivity {
         DebugLog("FINALARRAYOUTCOME", "" + followedWhoList);
         Log.d("FINALARRAYSIZE", "" + followedWhoList.size());
         ArrayList<User> userUserList = new ArrayList<User>();
-        if (idList.size() == followedList.size() && idList.size() == descriptionList.size() && idList.size() == nameList.size() && idList.size() == passwordList.size() && idList.size() == followedWhoList.size() && idList.size() == usernameList.size()) {
+        if (idList.size() == followedList.size() && idList.size() == descriptionList.size() && idList.size() == nameList.size() && idList.size() == passwordList.size()  && idList.size() == usernameList.size()  && idList.size() == followedWhoList.size()) {
             //Share the same for loop if only the lengths of all the arrays involved are exactly equal to one another.
-            for (int i = 0; i < idList.size(); i++) {
+            for (int i = 0; i < followedWhoList.size(); i++) {
                 userUserList.add(
                     new User(
                         idList.get(i),
@@ -547,10 +558,13 @@ public class user_landing extends AppCompatActivity {
                         usernameList.get(i),
                         passwordList.get(i),
                         followedList.get(i),
-                        null
+                        followedWhoList.get(i)
                     )
                 );
             }
+        }
+        else {
+            Log.e("FATAL EXCEPTION!", "Unbalanced array lengths");
         }
         Log.d("ReturnTheUserList", "Returning the array from the method....");
         return userUserList;
@@ -579,13 +593,13 @@ public class user_landing extends AppCompatActivity {
         do {
             PasswordGenerator_x20length(passwordList);
         }
-        while (passwordList.size() < 100);
+        while (passwordList.size() <= 20);
 
         //Repeat this process for 100 times....
         do {
             UsernameGenerator_x100Quantity(usernameList);
         }
-        while (usernameList.size() < 100);
+        while (usernameList.size() <= 20);
 
         //Generate 100 user data and append it into the database.
         int tag = 1;
@@ -609,7 +623,7 @@ public class user_landing extends AppCompatActivity {
             );
             tag++;
         }
-        while (tag < 100);
+        while (tag <= 20);
 
         Log.d(TAG, "Code reached this checkpoint: Checkpoint 1");
 
@@ -648,8 +662,9 @@ public class user_landing extends AppCompatActivity {
         //if the user taps on the 'New User?' text
         newUser.setOnTouchListener((View v, MotionEvent m) -> {
             //go to another java class
-            Intent andThenRedirect = new Intent(user_landing.this, create_user_account_funcitonality.class);
-            startActivity(andThenRedirect);
+            //Intent andThenRedirect = new Intent(user_landing.this, create_user_account_funcitonality.class);
+            //startActivity(andThenRedirect);
+            Toast.makeText(this, "This feature is not available as of now", Toast.LENGTH_SHORT).show();
             return m.isButtonPressed(R.id.createNewUser);
         });
 
@@ -676,8 +691,9 @@ public class user_landing extends AppCompatActivity {
                         (DialogInterface di, int i) -> {
                             di.dismiss();
                             //then redirect to another activity...
-                            Intent andThenRedirect = new Intent(user_landing.this, create_user_account_funcitonality.class);
-                            startActivity(andThenRedirect);
+                            //Intent andThenRedirect = new Intent(user_landing.this, create_user_account_funcitonality.class);
+                            //startActivity(andThenRedirect);
+                            Toast.makeText(this, "This feature is not available as of now", Toast.LENGTH_SHORT).show();
                         }
                     )
                     .setNegativeButton(

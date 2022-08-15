@@ -70,21 +70,21 @@ public class create_user_account_funcitonality extends AppCompatActivity {
 
         (findViewById(R.id.confirmationSignUpButton)).setOnClickListener(andThen -> {
             EditText usernameField = (findViewById(R.id.setUsernameFieldText));
-            String usernameInput = usernameField.getText().toString();
+            String usernameInput = usernameField.getText().toString(); //Extract the username string from the username field
             EditText passwordField = (findViewById(R.id.setPasswordFieldText));
-            String passwordInput = passwordField.getText().toString();
+            String passwordInput = passwordField.getText().toString(); //Extract the password string from the password field
             if (usernameInput.length() != 0 && passwordInput.length() != 0) {
-                if (hasDuplicate(passwordInput)) {
+                if (hasDuplicate(usernameInput)) {
                     //if there is a duplicate....
                     alertDialogBuilder
-                            .setTitle("Duplicate user error")
-                            .setMessage(usernameInput + " is already taken. Please try again with another username.")
-                            .setPositiveButton(
-                                    "Understood",
-                                    (DialogInterface di, int i) -> {
-                                        di.dismiss();
-                                    }
-                            );
+                        .setTitle("Duplicate user error")
+                        .setMessage(usernameInput + " is already taken. Please try again with another username.")
+                        .setPositiveButton(
+                            "Understood",
+                            (DialogInterface di, int i) -> {
+                                di.dismiss();
+                            }
+                        );
                     AlertDialog messageBox = alertDialogBuilder.create();
                     messageBox.show();
                 } else {
@@ -92,6 +92,7 @@ public class create_user_account_funcitonality extends AppCompatActivity {
                     HashMap<String, User> newUser = new HashMap<String, User>();
                     //int id, String name, String description, String username, String password, ArrayList<String> followedWho
                     //Go into the firebase database and find the last id number
+                    int newID; String newName, newDescription, newUsername, newPassword; ArrayList<String> newFollowedWhoList; boolean newFollowedStatus = false;
 
                     Toast.makeText(this, "New account has been created....", Toast.LENGTH_SHORT);
                     Wait(1000);

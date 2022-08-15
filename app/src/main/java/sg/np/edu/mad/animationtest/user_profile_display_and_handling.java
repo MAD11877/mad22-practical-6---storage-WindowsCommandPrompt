@@ -1,9 +1,11 @@
 package sg.np.edu.mad.animationtest;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.*;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.*;
@@ -55,5 +57,32 @@ public class user_profile_display_and_handling extends AppCompatActivity {
         //tempList.get() gives the entire array....
         //usernameString.get() gives the username identifier
         dbHandler.UpdateUser(tempList.get(), usernameString.get());
+
+        //Allow the user to be able to sign out of the account
+        ((LinearLayout) findViewById(R.id.signOut)).setOnClickListener(function -> {
+            AlertDialog.Builder messageBuilder = new AlertDialog.Builder(this);
+            messageBuilder
+            .setTitle("Confirm sign out?")
+            .setMessage("Are you sure you would like to sign out of this application? You will be required to sign in again later")
+            .setPositiveButton(
+                    "YES",
+                    (DialogInterface di, int i) -> {
+                        //DELETE THE INFORMATION FROM THE SQLITE DB
+
+                        //Where do you want to go?
+                        Intent intent = new Intent();
+                        intent.setClassName("sg.np.edu.mad.animationtest.user_profile_display_and_handling", "sg.np.edu.mad.animationtest.user_landing");
+                        startActivity(intent);
+                        finish();
+                    }
+            )
+            .setNegativeButton(
+                    "NO",
+                    (DialogInterface di, int i) -> {
+                        di.dismiss();
+                    }
+            )
+            .setCancelable(false);
+        });
     }
 }

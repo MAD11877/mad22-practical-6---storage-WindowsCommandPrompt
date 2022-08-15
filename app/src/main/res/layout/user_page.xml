@@ -51,6 +51,7 @@
         </LinearLayout>
         <!--Main interface-->
         <LinearLayout
+            android:clickable = "true"
             android:layout_width = "match_parent"
             android:layout_height = "wrap_content"
             android:orientation = "horizontal"
@@ -73,6 +74,7 @@
                     android:text = "Explore"></TextView>
             </LinearLayout>
             <LinearLayout
+                android:clickable = "true"
                 android:id = "@+id/signOut"
                 android:layout_width = "wrap_content"
                 android:layout_height = "match_parent"
