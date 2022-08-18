@@ -435,27 +435,10 @@ public class user_landing extends AppCompatActivity {
                     )
                 )
             ) {
-                Log.d("FILTEREDELEMENTS", e[i]);
+                Log.d("FILTEREDELEMENTS", e[i]); //Filtered elements return the correct result
                 //If e[i].startsWith("[") then add a breakpoint, terminate when the loop meets a string that contains "]" inside
                 //Keep adding the items that is between strings that have met the e[i].startsWith("]") condition and the e[i].endsWith("]") condition
-                innerArray.add(
-                    e[i].startsWith("[")
-                    ? e[i].replace("[", "{")
-                    : e[i].endsWith("]")
-                    ? e[i].replace("]", "}")
-                    : e[i].startsWith("[") && e[i].endsWith("]")
-                    ? e[i].replace("[", "{").replace("]", "}")
-                    : e[i]
-                );
-                //Remove sandwiched usernames
-                for (int j = 0; j < innerArray.size(); ++j){
-                    //Perform string manipulation and slicing '(internal array string grouping)'
-                    if (j + 1 < innerArray.size() && j - 1 >= 0){
-                        if (innerArray.get(j+1).contains("{") && innerArray.get(j-1).contains("}")){
-                            innerArray.remove(innerArray.get(j));
-                        }
-                    }
-                }
+                innerArray.add(e[i]);
             }
             if (i - 1 >= 0) { //Check the last character whether does it equate to a single underscore character, if not check the character to the right of the underscore
                 if (e[i].contains("_") && (e[i-1].equals("true") || e[i-1].equals("false"))){
@@ -476,12 +459,23 @@ public class user_landing extends AppCompatActivity {
                 }
             }
         }
+        //Remove sandwiched usernames
+        for (int j = 0; j < innerArray.size(); ++j){
+            //Perform string manipulation and slicing '(internal array string grouping)'
+            if (j + 1 < innerArray.size() && j - 1 >= 0){
+                if (innerArray.get(j+1).contains("[") && innerArray.get(j-1).contains("]")){
+                    innerArray.remove(j);
+                }
+            }
+        }
+        //Remove the last element from the array
+        innerArray.remove(innerArray.size() - 1);
         for (int i = 0; i < innerArray.size(); i++){
-            if (innerArray.get(i).contains("{")){
+            if (innerArray.get(i).startsWith("[")){
                 followedWhoList.add(new ArrayList<>());
             }
         }
-        innerArray.remove(innerArray.size() - 1); //Remove the last element from the array
+        //innerArray.remove(innerArray.size() - 1); //Remove the last element from the array
         DebugLog("INNERARRAY", "" + innerArray);
         Log.d("INNERARRAYSIZEBEFORE", "" + innerArray.size());
         Log.d("CURRLENPASSWORD", "" + passwordList.size());
@@ -498,12 +492,12 @@ public class user_landing extends AppCompatActivity {
             if (innerArray.size() != 0 && j < followedWhoList.size()) {
                 Log.d("REPEATING", "The process is currently repeating");
                 for (int i = 0; i < innerArray.size(); i++) {
-                    if (innerArray.get(i).startsWith("{")) {
+                    if (innerArray.get(i).startsWith("[")) {
                         startingIndex = innerArray.indexOf(innerArray.get(i));
                         Log.d("STARTINGINDEX", "" + startingIndex);
                         //continue; //skipping subsequent elements that do not contain "{" in it
                     }
-                    if (innerArray.get(i).endsWith("}")) {
+                    if (innerArray.get(i).endsWith("]")) {
                         endingIndex = innerArray.indexOf(innerArray.get(i));
                         Log.d("ENDINGINDEX", "" + endingIndex);
                         break;
@@ -514,10 +508,10 @@ public class user_landing extends AppCompatActivity {
                     Log.d("BoundaryEntry", "If Statement Entry!");
                     Log.d("CURRVALJ", "" + j);
                     followedWhoList.get(j).add(
-                        innerArray.get(startingIndex).contains("{")
-                        ? innerArray.get(startingIndex).replace("{", "")
-                        : innerArray.get(startingIndex).contains("}")
-                        ? innerArray.get(startingIndex).replace("}", "")
+                        innerArray.get(startingIndex).startsWith("[")
+                        ? innerArray.get(startingIndex).replace("[", "")
+                        : innerArray.get(startingIndex).endsWith("]")
+                        ? innerArray.get(startingIndex).replace("]", "")
                         : innerArray.get(startingIndex)
                     );
                     ++startingIndex; //Move on to next element
