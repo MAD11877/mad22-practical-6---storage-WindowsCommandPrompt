@@ -337,11 +337,11 @@ public class user_landing extends AppCompatActivity {
         boolean existance = false;
         Log.d("isAnEntryInDatabase", "Function begins execution....");
         Log.d("Size", "" + ConvertToUser(string, dataStrLen, dataRawStrLen).size());
-        for (User u : ConvertToUser(string, dataStrLen, dataRawStrLen)){
+/*        for (User u : ConvertToUser(string, dataStrLen, dataRawStrLen)){
             if (u.username.equals(username)){
                 existance = true;
             }
-        }
+        }*/
         return existance;
     }
 
@@ -435,7 +435,6 @@ public class user_landing extends AppCompatActivity {
                     )
                 )
             ) {
-                Log.d("FILTEREDELEMENTS", e[i]); //Filtered elements return the correct result
                 //If e[i].startsWith("[") then add a breakpoint, terminate when the loop meets a string that contains "]" inside
                 //Keep adding the items that is between strings that have met the e[i].startsWith("]") condition and the e[i].endsWith("]") condition
                 innerArray.add(e[i]);
@@ -471,8 +470,9 @@ public class user_landing extends AppCompatActivity {
         //Remove the last element from the array
         innerArray.remove(innerArray.size() - 1);
         for (int i = 0; i < innerArray.size(); i++){
+            Log.d("FILTEREDELEMENTS", innerArray.get(i)); //Filtered elements return the correct result
             if (innerArray.get(i).startsWith("[")){
-                followedWhoList.add(new ArrayList<>());
+                followedWhoList.add(new ArrayList<>()); //Insert empty lists accordingly
             }
         }
         //innerArray.remove(innerArray.size() - 1); //Remove the last element from the array
@@ -485,50 +485,77 @@ public class user_landing extends AppCompatActivity {
         Log.d("CURRLENID", "" + idList.size());
         Log.d("CURRLENUSERNAME", "" + usernameList.size());
         Log.d("CURRLENFOLLOWEDWHO", "" + followedWhoList.size());
-        int j = 0;
-        int startingIndex = 0;
-        int endingIndex = 0;
+        int j = 0;int startingIndex = 0;int endingIndex = 0;boolean onlyOneElement = false;
+        //Until here everything is correct
         for (; ; ) {
-            if (innerArray.size() != 0 && j < followedWhoList.size()) {
+            if (j < followedWhoList.size()) {
                 Log.d("REPEATING", "The process is currently repeating");
                 for (int i = 0; i < innerArray.size(); i++) {
-                    if (innerArray.get(i).startsWith("[")) {
-                        startingIndex = innerArray.indexOf(innerArray.get(i));
-                        Log.d("STARTINGINDEX", "" + startingIndex);
-                        //continue; //skipping subsequent elements that do not contain "{" in it
+                    if (innerArray.get(i).contains("[") && innerArray.get(i).contains("]")) {
+                        Log.d("STARTINGINDEXNEW", "" + startingIndex);
+                        Log.d("ENDINGINDEXNEW", "" + endingIndex);
+                        startingIndex = i = endingIndex;
+                        break;
                     }
-                    if (innerArray.get(i).endsWith("]")) {
-                        endingIndex = innerArray.indexOf(innerArray.get(i));
+                    if (innerArray.get(i).contains("[") && !innerArray.get(i).contains("]")) {
+                        Log.d("STARTINGINDEX", "" + startingIndex);
+                        startingIndex = i;
+                    }
+                    if (innerArray.get(i).contains("]")) {
+                        endingIndex = i;
                         Log.d("ENDINGINDEX", "" + endingIndex);
                         break;
                     }
                 }
-                //Create a boundary (range)
-                do {
-                    Log.d("BoundaryEntry", "If Statement Entry!");
-                    Log.d("CURRVALJ", "" + j);
-                    followedWhoList.get(j).add(
-                        innerArray.get(startingIndex).startsWith("[")
-                        ? innerArray.get(startingIndex).replace("[", "")
-                        : innerArray.get(startingIndex).endsWith("]")
-                        ? innerArray.get(startingIndex).replace("]", "")
-                        : innerArray.get(startingIndex)
-                    );
-                    ++startingIndex; //Move on to next element
-                } while (startingIndex <= endingIndex);
-                //WHEN DONE: UPON SUCCESSFUL DELETION
-                startingIndex = 0; //initialize again to prepare for deletion
-                do {
-                    //Delete the element from the innerArray
-                    innerArray.remove(startingIndex);
-                    Log.d("INDEX", "" + startingIndex);
-                    ++startingIndex;
-                    Log.d("EndingIndexCurrent", "" + endingIndex);
+                if (startingIndex == endingIndex) { //might be '[]' or '[Username]'
+                    if ((innerArray.get(startingIndex).contains("[") && innerArray.get(startingIndex).contains("]")) && !innerArray.get(startingIndex).equals("[]")) {
+                        onlyOneElement = true;
+                    }
                 }
-                while (startingIndex <= endingIndex);
+                //Create a boundary (range)
+                if (onlyOneElement || (startingIndex != endingIndex)) {
+                    if (!onlyOneElement) {
+                        do {
+                            Log.d("BoundaryEntry", "If Statement Entry!");
+                            Log.d("CURRVALJ", "" + j);
+                            Log.d("LOADEDELEMENT", "" + innerArray.get(startingIndex));
+                            followedWhoList.get(j).add(
+                                innerArray.get(startingIndex)
+                            );
+                            ++startingIndex; //Move on to next element
+                        } while (startingIndex <= endingIndex);
+                    }
+                    else {
+                        followedWhoList.get(j).add(
+                            innerArray.get(startingIndex)
+                        );
+                    }
+                    //WHEN DONE: UPON SUCCESSFUL DELETION
+                    startingIndex = 0; //initialize again to prepare for deletion
+                    if (!onlyOneElement) {
+                        //FIXME: Skipping of elements observed
+                        do {
+                            Log.d("INDEX", "" + startingIndex);
+                            Log.d("RemovedElement", innerArray.get(startingIndex));
+                            //Delete the element from the innerArray
+                            innerArray.remove(startingIndex);
+                            endingIndex--;
+                        }
+                        while (endingIndex >= 0);
+                    }
+                    else {
+                        innerArray.remove(innerArray.get(startingIndex));
+                    }
+                }
+                else { //Only for '[]'
+                    innerArray.remove(innerArray.get(startingIndex)); //remove that element
+                    //if just an empty array, add a null then skip that cell
+                    followedWhoList.get(j).add(null);
+                }
                 j++;
                 startingIndex = 0; //initialize
                 endingIndex = 0; //initialize
+                onlyOneElement = false;
                 Log.d("ENDINGINDEXINITIALIZATION", "" + endingIndex);
             }
             else {
@@ -537,9 +564,10 @@ public class user_landing extends AppCompatActivity {
                 break;
             }
         }
-        DebugLog("INNERARRAYOUT", "" + innerArray); //SHOULD BE AN EMPTY LIST
         DebugLog("FINALARRAYOUTCOME", "" + followedWhoList);
         Log.d("FINALARRAYSIZE", "" + followedWhoList.size());
+        //perform final array cleaning
+
         ArrayList<User> userUserList = new ArrayList<User>();
         if (idList.size() == followedList.size() && idList.size() == descriptionList.size() && idList.size() == nameList.size() && idList.size() == passwordList.size()  && idList.size() == usernameList.size()  && idList.size() == followedWhoList.size()) {
             //Share the same for loop if only the lengths of all the arrays involved are exactly equal to one another.
