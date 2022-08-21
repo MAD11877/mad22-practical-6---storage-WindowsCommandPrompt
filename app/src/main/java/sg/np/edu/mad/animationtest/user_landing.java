@@ -21,16 +21,7 @@ import com.google.firebase.firestore.*;
 
 public class user_landing extends AppCompatActivity {
 
-    //Thread pause method
-    private void Wait(long millis){
-        try{
-            Thread.sleep(millis);
-        }
-        catch (InterruptedException ie){
-            Log.d(TAG, "Process killed!");
-        }
-    }
-
+    public  ArrayList<User> TEMPUSERLIST = null;
     public final String TAG = "TAG";
     public final String USERNAME = "Username";
     public final String PASSWORD = "Password";
@@ -38,7 +29,16 @@ public class user_landing extends AppCompatActivity {
     public static ArrayList<String> passwordList = new ArrayList<>(); //pass this array list into the method named 'PasswordGenerator_x20'
     public static ArrayList<String> usernameList = new ArrayList<>();
 
-    public user_landing() { }
+    public void setTempUserList(ArrayList<User> uList){
+        this.TEMPUSERLIST = uList;
+    }
+
+    public ArrayList<User> getTempUserList(){
+        return this.TEMPUSERLIST;
+    }
+
+    public static user_landing BASEOBJ = new user_landing();
+    public static user_landing ENTRIES = new user_landing();
 
     //generate a password...
     private static void PasswordGenerator_x20length(ArrayList<String> password) {
@@ -164,48 +164,6 @@ public class user_landing extends AppCompatActivity {
 
     public DBHandler dbHandler = new DBHandler(this);
 
-    //Find the target user
-    //param1 contains the updated userList, param2 is the username of the user.....
-    public void UserDatabaseUpdateHandling(ArrayList<String> followed, String username){
-        ArrayList<User> extractedUserList = new ArrayList<User>();
-        ArrayList<String> keyPair = new ArrayList<String>();
-        User user = new User();
-        int targetIndex = 0;
-        for (String s : ExtractAllFromDatabase().keySet()){
-            keyPair.add(s);
-        }
-        for (Object u : ExtractAllFromDatabase().values()){
-            extractedUserList.add((User) u);
-        }
-        for (User u : extractedUserList){
-            if (u.username.equals(username)){
-                targetIndex = extractedUserList.indexOf(u);
-                user.setId(u.id);
-                user.setName(u.name);
-                user.setDescription(u.description);
-                user.setFollowed(u.followed);
-                user.setUsername(u.username);
-                user.setPassword(u.password);
-                user.setFollowedWho(u.followedWho);
-            }
-        }
-        String requiredKeyPair = keyPair.get(targetIndex);
-        //new user built
-        //update that field...
-        /*
-        RESTdb.collection("LoginInformation").document("LoginInformation")
-                .update
-                .addOnCompleteListener(Void -> {
-
-                })
-                .addOnCancelListener(Void -> {
-
-                });
-                
-         */
-    }
-
-    //
     public int GenerateNumOfFollowers(){
         Random generator = new Random();
         //number generated from the random number generator will exclude the value included in the bound. Therefore
@@ -248,30 +206,6 @@ public class user_landing extends AppCompatActivity {
         return userList;
     }
 
-    //Retrieve the required user from the database
-    public User RetrieveTargetUser(String username){
-        HashMap<String, Object> firebaseFirestore = ExtractAllFromDatabase();
-        //returns a user object...
-        User user = new User();
-        if (firebaseFirestore.size() != 0) {
-            if ((((User) firebaseFirestore.values()).username).equals(username)) {
-                user.setId(((User) firebaseFirestore.values()).id);
-                user.setUsername(((User) firebaseFirestore.values()).username);
-                user.setName(((User) firebaseFirestore.values()).name);
-                user.setPassword(((User) firebaseFirestore.values()).password);
-                user.setFollowed(((User) firebaseFirestore.values()).followed);
-                user.setDescription(((User) firebaseFirestore.values()).description);
-                user.setFollowedWho(((User) firebaseFirestore.values()).followedWho);
-            } else {
-                return null;
-            }
-        }
-        else {
-            return null;
-        }
-        return user;
-    }
-
     //dangerous, use this method with care
     public static void DeleteEntiresFirebaseFirestore(){
         RESTdb.collection("LoginInformation").document("LoginInformation")
@@ -284,48 +218,22 @@ public class user_landing extends AppCompatActivity {
         });
     }
 
-    public static boolean databaseHas100Entries(){
-        return new user_landing().ExtractAllFromDatabase().size() < 100;
-    }
-
     //dangerous, use this method with care
-    public static void WriteToFirebaseFirestore(HashMap<String, User> userData) {
-        if (databaseHas100Entries()) {
-            Log.d("Datasize", Integer.toString(new user_landing().ExtractAllFromDatabase().size()));
-            Log.d("Function entry", "Starting to write");
-            RESTdb.collection("LoginInformation").document("LoginInformation")
-            .set(userData)
-            .addOnSuccessListener((Void) -> {
-                Log.d("DocumentUpdateStatus", "Data append successful");
-            })
-            .addOnFailureListener((Void) -> {
-                Log.d("DocumentUpdateStatus", "Data append failed");
-            });
-        } else {
-            Log.d("Message", "Has 100 entries!");
-            return;
-        }
-    }
-
-    public void Intermediary(){
-        DocumentReference df = RESTdb.collection("LoginInformation").document("LoginInformation");
-        HashMap<String, Object>[] abc = new HashMap[]{ new HashMap<String, Object>() };
-        df.get().addOnSuccessListener(process-> {
-            final HashMap<String, Object> a = ((HashMap<String, Object>)process.getData()); //all the data stored in a variable named a..
-            Log.d("Data size", "" + a.size()); //99
-            Log.d("Current Data", "" + a);
-            ((TextView) findViewById(R.id.tempString)).setText(a.toString());
-            ((TextView) findViewById(R.id.databaseStringLength)).setText(Integer.toString(a.size()));
+    public void WriteToFirebaseFirestore(HashMap<String, User> userData) {
+        RESTdb.collection("LoginInformation").document("LoginInformation").get().addOnSuccessListener(process -> {
+            Log.d("INITIALLENGTH", "" + process.getData().size());
+            if (process.getData().size() < 20) {
+                Log.d("Function entry", "Starting to write");
+                RESTdb.collection("LoginInformation").document("LoginInformation")
+                .set(userData)
+                .addOnSuccessListener((Void) -> {
+                    Log.d("DocumentUpdateStatus", "Data append successful");
+                })
+                .addOnFailureListener((Void) -> {
+                    Log.d("DocumentUpdateStatus", "Data append failed");
+                });
+            }
         });
-    }
-
-    //Extract all the information from the database...
-    public HashMap<String, Object> ExtractAllFromDatabase() {
-        //Full firebase firestore document represented as a string
-        HashMap<String, Object> a = new HashMap<>();
-        /*String tempText = ((TextView) findViewById(R.id.tempString)).getText().toString();
-        a.put("IDK", tempText);*/
-        return new HashMap<>();
     }
 
     // use the 'FirebaseFirestore' to write to the Firebase storage...
@@ -333,16 +241,26 @@ public class user_landing extends AppCompatActivity {
 
     //check for whether the username exists in the database, false if it does not exist
     //Firestorage (root) -> collection node -> document node
-    public Boolean isAnEntryInDatabase(String username, String string, String dataStrLen, String dataRawStrLen){
-        boolean existance = false;
+    public ArrayList<Object> isAnEntryInDatabase(String username, String password, String string, String dataStrLen, String dataRawStrLen){
+        ArrayList<Object> verificationStatus = new ArrayList<>();
         Log.d("isAnEntryInDatabase", "Function begins execution....");
         Log.d("Size", "" + ConvertToUser(string, dataStrLen, dataRawStrLen).size());
-/*        for (User u : ConvertToUser(string, dataStrLen, dataRawStrLen)){
-            if (u.username.equals(username)){
-                existance = true;
+        ArrayList<User> userList = ConvertToUser(string, dataStrLen, dataRawStrLen);
+        for (int i = 0; i < userList.size(); ++i){
+            Log.d("ResultUsername", userList.get(i).username);
+            Log.d("ResultPassword", userList.get(i).password);
+            if (userList.get(i).username.equals(username) && userList.get(i).password.equals(password)){
+                Log.d("Entered here", "Has entered this clause");
+                verificationStatus.add(true);
+                verificationStatus.add(true);
+                verificationStatus.add(i);
+                break;
             }
-        }*/
-        return existance;
+        }
+        for (Object o : verificationStatus){
+            Log.d("INTERNAL", "" + o);
+        }
+        return verificationStatus;
     }
 
     //This method is only used to log extremely long messages
@@ -533,7 +451,6 @@ public class user_landing extends AppCompatActivity {
                     //WHEN DONE: UPON SUCCESSFUL DELETION
                     startingIndex = 0; //initialize again to prepare for deletion
                     if (!onlyOneElement) {
-                        //FIXME: Skipping of elements observed
                         do {
                             Log.d("INDEX", "" + startingIndex);
                             Log.d("RemovedElement", innerArray.get(startingIndex));
@@ -564,10 +481,8 @@ public class user_landing extends AppCompatActivity {
                 break;
             }
         }
-        DebugLog("FINALARRAYOUTCOME", "" + followedWhoList);
         Log.d("FINALARRAYSIZE", "" + followedWhoList.size());
-        //perform final array cleaning
-
+        DebugLog("FINALARRAYOUTCOME", "" + followedWhoList);
         ArrayList<User> userUserList = new ArrayList<User>();
         if (idList.size() == followedList.size() && idList.size() == descriptionList.size() && idList.size() == nameList.size() && idList.size() == passwordList.size()  && idList.size() == usernameList.size()  && idList.size() == followedWhoList.size()) {
             //Share the same for loop if only the lengths of all the arrays involved are exactly equal to one another.
@@ -589,35 +504,32 @@ public class user_landing extends AppCompatActivity {
             Log.e("FATAL EXCEPTION!", "Unbalanced array lengths");
         }
         Log.d("ReturnTheUserList", "Returning the array from the method....");
+        BASEOBJ.setTempUserList(userUserList);
         return userUserList;
+    }
+
+    public void Intermediary(){
+        DocumentReference df = RESTdb.collection("LoginInformation").document("LoginInformation");
+        df.get().addOnSuccessListener(process-> {
+            final HashMap<String, Object> a = ((HashMap<String, Object>)process.getData()); //all the data stored in a variable named a..
+            Log.d("Data size", "" + a.size()); //99
+            Log.d("Current Data", "" + a);
+            ((TextView) findViewById(R.id.tempString)).setText(a.toString());
+            ((TextView) findViewById(R.id.databaseStringLength)).setText(Integer.toString(a.size()));
+        });
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        //run through the entire SQLite database again......
-        if (dbHandler.GetAllUsers().size() == 0) {
-            Log.d("Redirect to login", "Going to user login activity");
-            setContentView(R.layout.practical5_loginpage); //Set this content view if SharedPreferences contains NO DATA
-            Intermediary(); //Load the information into an invisible textview LOL
-        }
-        else {
-            Log.d(TAG, "Else statement executed");
-            //straight away go to user_main.java
-            Intent transporter = new Intent();
-            transporter.setClassName("sg.np.edu.mad.animationtest.user_landing", "sg.np.edu.mad.animationtest.user_main");
-            startActivity(transporter);
-            finish();
-        }
-
-        //Repeat this process for 100 times
+        //Repeat this process for 20 times
         do {
             PasswordGenerator_x20length(passwordList);
         }
         while (passwordList.size() <= 20);
 
-        //Repeat this process for 100 times....
+        //Repeat this process for 20 times....
         do {
             UsernameGenerator_x100Quantity(usernameList);
         }
@@ -650,14 +562,14 @@ public class user_landing extends AppCompatActivity {
         Log.d(TAG, "Code reached this checkpoint: Checkpoint 1");
 
         //run AppendFollowerList()
-        for (int i = 0; i < AppendIntoActualArray().size(); i++){
+        for (int i = 0; i < AppendIntoActualArray().size(); i++) {
             Log.d(USERNAME, (userList.get(i).username));
             Log.d(PASSWORD, (userList.get(i).followedWho) + "\n========================================================================");
         }
 
         //append the list of objects directly into Google Firebase...
         HashMap<String, User> userData = new HashMap<>();
-        for (int i = 0; i < userList.size(); i++){
+        for (int i = 0; i < userList.size(); i++) {
             userData.put("User " + i, userList.get(i)); //the whole document stores a map, consisting of a key that has been declared as a string and the value which has been declared as a userObject
         }
 
@@ -670,6 +582,21 @@ public class user_landing extends AppCompatActivity {
 
         //Add into the database...
         WriteToFirebaseFirestore(userData);
+
+        //run through the entire SQLite database again......
+        if (dbHandler.GetAllUsers().size() == 0) {
+            Log.d("Redirect to login", "Going to user login activity");
+            setContentView(R.layout.practical5_loginpage); //Set this content view if SharedPreferences contains NO DATA
+            Intermediary(); //Load the information into an invisible textview.
+        }
+        else {
+            Log.d(TAG, "Else statement executed");
+            //straight away go to user_main.java
+            Intent transporter = new Intent();
+            transporter.setClassName("sg.np.edu.mad.animationtest.user_landing", "sg.np.edu.mad.animationtest.user_main");
+            startActivity(transporter);
+            finish();
+        }
 
         //DeleteEntiresFirebaseFirestore();
         //dbHandler.ClearDatabase();
@@ -690,6 +617,27 @@ public class user_landing extends AppCompatActivity {
             return m.isButtonPressed(R.id.createNewUser);
         });
 
+        alertDialog
+        .setTitle("User authentication has failed")
+        .setMessage("Either your username or your password is not correct. Please try again.")
+        .setPositiveButton(
+            "Create another account",
+            (DialogInterface di, int i) -> {
+                di.dismiss();
+                //then redirect to another activity...
+                //Intent andThenRedirect = new Intent(user_landing.this, create_user_account_funcitonality.class);
+                //startActivity(andThenRedirect);
+                Toast.makeText(this, "This feature is not available as of now", Toast.LENGTH_SHORT).show();
+            }
+        )
+        .setNegativeButton(
+            "Try again",
+            (DialogInterface di, int i) -> {
+                di.dismiss();
+            }
+        )
+        .setCancelable(false);
+
         myLoginButton.setOnClickListener(ThenFunction -> {
             Log.d("DatabaseFullStringLen", "" + ((TextView) findViewById(R.id.tempString)).getText().length());
             DebugLog("DatabaseFullString", ((TextView) findViewById(R.id.tempString)).getText().toString());
@@ -703,65 +651,39 @@ public class user_landing extends AppCompatActivity {
             EditText usernameTextField = (EditText) findViewById(R.id.usernameField);
             Log.d(TAG, "The code reached here");
             if (passwordTextField.getText().length() != 0 && usernameTextField.getText().length() != 0) {
+                ArrayList<Object> finalObjArr = isAnEntryInDatabase(usernameTextField.getText().toString(), passwordTextField.getText().toString(), result, result1, result2);
                 Log.d("Account verification", "Verification started....");
-                if (!isAnEntryInDatabase(usernameTextField.getText().toString(), result, result1, result2)) {
-                    alertDialog
-                    .setTitle("User not found")
-                    .setMessage("The entered user cannot be found. Do you want to create a new account?")
-                    .setPositiveButton(
-                        "Yes",
-                        (DialogInterface di, int i) -> {
-                            di.dismiss();
-                            //then redirect to another activity...
-                            //Intent andThenRedirect = new Intent(user_landing.this, create_user_account_funcitonality.class);
-                            //startActivity(andThenRedirect);
-                            Toast.makeText(this, "This feature is not available as of now", Toast.LENGTH_SHORT).show();
-                        }
-                    )
-                    .setNegativeButton(
-                        "No",
-                        (DialogInterface di, int i) -> {
-                            di.dismiss();
-                        }
-                    );
-                    //launch the dialog
-                    AlertDialog message = alertDialog.create();
-                    message.show();
+                Log.d("USERNAMECHECKSTATUS", "" + finalObjArr.get(0));
+                Log.d("PASSWORDCHECKSTATUS", "" + finalObjArr.get(1));
+                if (((Boolean) finalObjArr.get(0)) && (Boolean) finalObjArr.get(1)) {
+                    //if the username exist then check for the password.
+                    ArrayList<String> abc = new ArrayList<String>();
+                    ArrayList<String> abc1 = new ArrayList<>();
+                    ArrayList<String> abc2 = new ArrayList<>();
+                    for (int i = 0; i < ConvertToUser(result, result1, result2).size(); i++) {
+                        //Add all users into the list.
+                        abc.add(ConvertToUser(result, result1, result2).get(i).username);
+                        abc1.add(ConvertToUser(result, result1, result2).get(i).name);
+                        abc2.add(ConvertToUser(result, result1, result2).get(i).description);
+                    }
+                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "User login is successful at this point");
+                    //Add the user object into the SQLDB..
+                    Intent andThenRedirect = new Intent(sg.np.edu.mad.animationtest.user_landing.this, sg.np.edu.mad.animationtest.user_main.class);
+                    andThenRedirect.putExtra("Name", ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).name);
+                    andThenRedirect.putExtra("Description", ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).description);
+                    andThenRedirect.putExtra("FollowedWhoList", ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).followedWho.toArray(new String[] { }));
+                    andThenRedirect.putExtra("FullUserList", abc.toArray(new String[] {}));
+                    andThenRedirect.putExtra("FullNameList", abc1.toArray(new String[] {}));
+                    andThenRedirect.putExtra("FullDescriptionList", abc2.toArray(new String[] {}));
+                    //dbHandler.AddUser();
+                    //tell user_landing.java to pass the task to user_main.java
+                    startActivity(andThenRedirect);
+                    finish();
                 }
                 else {
-                    //TODO: Need to check this segment
-                    //perform login authentication. Check if the corresponding password is correct
-                    //values() stores all the User Objects
-                    //since FindUser( ) returns a user object, we just need to extract the password information and do a quick comparison..
-                    for (int i = 0; i < ConvertToUser(result, result1, result2).size(); i++){
-                        if ((ConvertToUser(result, result1, result2).get(i).password).equals(passwordTextField.getText().toString())) {
-                            Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, "User login is successful at this point");
-                            //Add the user object into the SQLDB..
-                            //dbHandler.AddUser(RetrieveTargetUser(usernameTextField.getText().toString()));
-                            Wait(1500);
-                            Intent andThenRedirect = new Intent();
-                            andThenRedirect.putExtra("Username", usernameTextField.getText().toString());
-                            andThenRedirect.putExtra("Password", passwordTextField.getText().toString());
-                            //tell user_landing.java to pass the task to user_main.java
-                            andThenRedirect.setClassName("sg.np.edu.mad.animationtest.user_landing", "sg.np.edu.mad.animationtest.user_main");
-                            startActivity(andThenRedirect);
-                            finish();
-                        }
-                        else {
-                            alertDialog
-                                    .setTitle("User authentication has failed.")
-                                    .setMessage("Your password is incorrect. Please check your username and password and try logging in again into the system.")
-                                    .setPositiveButton(
-                                            "OK",
-                                            (DialogInterface di, int j) -> {
-                                                di.dismiss();
-                                            }
-                                    );
-                            AlertDialog message = alertDialog.create();
-                            message.show();
-                        }
-                    }
+                    Log.d("BOTHWRONG", "Both username and the password are wrong");
+                    alertDialog.create().show();
                 }
             }
             else {

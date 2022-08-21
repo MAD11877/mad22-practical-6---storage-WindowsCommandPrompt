@@ -5,6 +5,8 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:clickable = "true"
+        android:id = "@+id/baseLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
@@ -29,24 +31,35 @@
                     android:src = "@drawable/ic_launcher_foreground"/>
             </RelativeLayout>
             <LinearLayout
+                android:clickable = "true"
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent"
                 android:orientation = "vertical">
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="200px"
+                    android:layout_height="0px"
+                    android:layout_weight = "1"
                     android:id = "@+id/nameHolder"
                     android:text = ""
-                    android:textSize = "75px"
+                    android:textSize = "50px"
                     android:textStyle = "bold"
                     android:gravity = "center"/>
                 <TextView
                     android:layout_width = "match_parent"
-                    android:layout_height = "fill_parent"
+                    android:layout_height = "0px"
+                    android:layout_weight = "1"
                     android:id = "@+id/descriptionHolder"
                     android:text = ""
                     android:gravity = "center"
-                    android:textSize = "45px"/>
+                    android:textSize = "40px"/>
+                <TextView
+                    android:layout_width = "match_parent"
+                    android:layout_height = "0px"
+                    android:layout_weight = "1"
+                    android:id = "@+id/abstractNameHolder"
+                    android:text = ""
+                    android:gravity = "center"
+                    android:textSize = "35px"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

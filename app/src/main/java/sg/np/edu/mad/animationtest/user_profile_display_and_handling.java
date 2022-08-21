@@ -23,7 +23,6 @@ public class user_profile_display_and_handling extends AppCompatActivity {
         //controls all the actions in user_profile.xml
         //read the data from google firebase firestore
         user_landing main = new user_landing();
-        List<User> userList = Arrays.asList((User) main.ExtractAllFromDatabase().values()); //the database has been fully extracted returns a HashMap<String, Object> Object
 
         DBHandler dbHandler = new DBHandler(this);
 
@@ -37,7 +36,7 @@ public class user_profile_display_and_handling extends AppCompatActivity {
         });
 
         //If the user attempts to follow or unfollow the user, then it will trigger a function which would in turn update the information in the database in such a way that it will append the username into the ArrayList that is bounded to the
-        ((Button) findViewById(R.id.followUnfollowButton)).setOnClickListener(thenFunctionAs -> {
+      /*  ((Button) findViewById(R.id.followUnfollowButton)).setOnClickListener(thenFunctionAs -> {
             //get the username of the profile.
             usernameString.set((((TextView) findViewById(R.id.userProfileNameHolder)).getText()).toString());
             for (int i = 0; i < userList.size(); i++){
@@ -52,7 +51,7 @@ public class user_profile_display_and_handling extends AppCompatActivity {
                     }
                 }
             }
-        });
+        });*/
 
         //tempList.get() gives the entire array....
         //usernameString.get() gives the username identifier

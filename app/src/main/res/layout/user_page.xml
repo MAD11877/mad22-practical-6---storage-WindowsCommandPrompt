@@ -79,12 +79,12 @@
                 android:layout_width = "wrap_content"
                 android:layout_height = "match_parent"
                 android:gravity = "center_vertical"
-                android:orientation = "horizontal">
+                android:orientation = "horizontal"
+                android:layout_marginLeft = "500px">
                 <ImageView
                     android:layout_width = "100px"
                     android:layout_height = "100px"
-                    android:src = "@drawable/rotate_drawable"
-                    android:layout_marginLeft = "500px"></ImageView>
+                    android:src = "@drawable/rotate_drawable"></ImageView>
                 <TextView
                     android:layout_width = "wrap_content"
                     android:layout_height = "wrap_content"
@@ -113,11 +113,17 @@
             android:id = "@+id/nameTextBox"
             android:layout_width = "match_parent"
             android:layout_height = "200px"
+            android:textStyle = "bold"
+            android:gravity = "center"
+            android:textSize = "25dp"
             android:text = ""></TextView>
         <TextView
             android:id = "@+id/descriptionTextBox"
             android:layout_width = "match_parent"
             android:layout_height = "200px"
+            android:textStyle = "bold"
+            android:gravity = "center"
+            android:textSize = "25dp"
             android:text = ""></TextView>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
