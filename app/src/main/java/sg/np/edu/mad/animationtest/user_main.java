@@ -24,12 +24,25 @@ public class user_main extends AppCompatActivity {
 
         Intent whiteHole = getIntent();
         String name = whiteHole.getStringExtra("Name");
+        String description = whiteHole.getStringExtra("Description");
 
         //Prepare to receive the information from 'recycler_view_interface.java' source code file
+        Intent restoredDetails = getIntent();
+        String restoredName = restoredDetails.getStringExtra("ReturnName");
+        String restoredDescription = restoredDetails.getStringExtra("ReturnDescription");
+        String[] restoredNameList = restoredDetails.getStringArrayExtra("ReturnNameList");
+        String[] restoredUserList = restoredDetails.getStringArrayExtra("ReturnUserList");
+        String[] restoredDescriptionList = restoredDetails.getStringArrayExtra("ReturnDescriptionList");
+        String[] restoredFollowedWhoList = restoredDetails.getStringArrayExtra("ReturnFollowedWhoList");
 
-
-        ((TextView) findViewById(R.id.nameTextBox)).setText(name);
-        ((TextView) findViewById(R.id.descriptionTextBox)).setText(whiteHole.getStringExtra("Description"));
+        if (name != null && description != null) {
+            ((TextView) findViewById(R.id.nameTextBox)).setText(name);
+            ((TextView) findViewById(R.id.descriptionTextBox)).setText(description);
+        }
+        else {
+            ((TextView) findViewById(R.id.nameTextBox)).setText(restoredName);
+            ((TextView) findViewById(R.id.descriptionTextBox)).setText(restoredDescription);
+        }
 
         String[] output1 = whiteHole.getStringArrayExtra("FollowedWhoList");
         String[] output2 = whiteHole.getStringArrayExtra("FullUserList");
@@ -66,13 +79,13 @@ public class user_main extends AppCompatActivity {
         ((LinearLayout) findViewById(R.id.exploreOtherUsers)).setOnClickListener(thenFunctionAs -> {
             //Redirect to the recycler's view
             Intent transporter = new Intent(sg.np.edu.mad.animationtest.user_main.this, sg.np.edu.mad.animationtest.recycler_view_interface.class);
-            transporter.putExtra("ForwardFollowedWhoList", output1);
-            transporter.putExtra("ForwardUsersList", output2);
-            transporter.putExtra("ForwardNameList", output3);
-            transporter.putExtra("ForwardDescriptionList", output4);
-            transporter.putExtra("Name", name);
+            transporter.putExtra("ForwardFollowedWhoList", output1 != null ? output1 : restoredFollowedWhoList);
+            transporter.putExtra("ForwardUsersList", output2 != null ? output2 : restoredUserList);
+            transporter.putExtra("ForwardNameList", output3 != null ? output3 : restoredNameList);
+            transporter.putExtra("ForwardDescriptionList", output4 != null ? output4 : restoredDescriptionList);
+            transporter.putExtra("Name", ((TextView) findViewById(R.id.nameTextBox)).getText().toString());
             //Send the description over to the 'recycler_view_interface.java' source code file
-            transporter.putExtra("Description", whiteHole.getStringExtra("Description"));
+            transporter.putExtra("Description", ((TextView) findViewById(R.id.descriptionTextBox)).getText().toString());
             startActivity(transporter);
             finish();
         });

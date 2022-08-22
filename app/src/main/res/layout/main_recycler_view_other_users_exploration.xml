@@ -29,6 +29,12 @@
                 android:layout_height="wrap_content"
                 android:text="Return to previous page"></TextView>
         </LinearLayout>
+        <TextView
+            android:layout_width = "match_parent"
+            android:layout_height = "wrap_content"
+            android:text = "EXPLORE USERS"
+            android:textSize = "75px"
+            android:gravity = "center"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/mainRecyclerViewUserExploration"
             android:layout_width="match_parent"

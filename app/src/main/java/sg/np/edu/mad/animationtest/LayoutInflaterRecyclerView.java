@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class LayoutInflaterRecyclerView extends RecyclerView.ViewHolder {

@@ -9,6 +9,9 @@ import android.widget.*;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -51,25 +54,56 @@ public class user_profile_display_and_handling extends AppCompatActivity {
             ((Button) findViewById(R.id.followUnfollowButton)).setText("FOLLOW");
         }
 
+        //Clean the array for further handling
+        //Remove the '[' symbol at the first element and the ']' symbol at the last element
+        ArrayList<String> translate = new ArrayList<String>();
+
+        translate.add(fullFollowedWhoList.get(0).replace(Character.toString(fullFollowedWhoList.get(0).charAt(0)), ""));
+        translate.add(fullFollowedWhoList.get(1));
+        translate.add(fullFollowedWhoList.get(fullFollowedWhoList.size() - 1).replace(Character.toString(fullFollowedWhoList.get(fullFollowedWhoList.size() - 1).charAt(fullFollowedWhoList.get(fullFollowedWhoList.size() - 1).length() - 1)), ""));
+
+        Log.d("OUTCOME", "" + translate);
+
         ((TextView) findViewById(R.id.userProfileDescriptionHolder)).setText(description);
         ((TextView) findViewById(R.id.userProfileNameHolder)).setText(name);
         ((TextView) findViewById(R.id.userProfileAbstractNameHolder)).setText(username);
+
+        FirebaseFirestore RESTDB = FirebaseFirestore.getInstance();
+        DocumentReference records = RESTDB.collection("LoginInformation").document("LoginInformation");
 
         //If the user attempts to follow or unfollow the user, then it will trigger a function which would in turn update the information in the database in such a way that it will append the username into the ArrayList that is bounded to the
         ((Button) findViewById(R.id.followUnfollowButton)).setOnClickListener(thenFunctionAs -> {
             //get the username of the profile.
             usernameString.set((((TextView) findViewById(R.id.userProfileNameHolder)).getText()).toString());
-            if (((Button) findViewById(R.id.followUnfollowButton)).getText().toString().equals("FOLLOW")){ //to unfollow the user, just simply remove the user from the array list
-                tempList.get().add(((TextView) findViewById(R.id.userProfileNameHolder)).getText().toString());
+            if (((Button) findViewById(R.id.followUnfollowButton)).getText().toString().equals("UNFOLLOW")){ //to unfollow the user, just simply remove the user from the array list
+                String targetUsername = usernameString.get();
                 //Remove the item from the list..
-                fullFollowedWhoList.remove(username);
-
+                if (translate.size() == 1) {
+                    translate.remove(username);
+                    translate.add(username);
+                    Log.d("AFTER-1ISNULL", "" + translate);
+                }
+                else {
+                    translate.remove(username);
+                    Log.d("AFTER-1NOTNULL", "" + translate);
+                }
+                Toast.makeText(this, "Successfully followed user", Toast.LENGTH_SHORT).show();
+                ((Button) findViewById(R.id.followUnfollowButton)).setText("FOLLOW");
             }
-            else if (((Button) findViewById(R.id.followUnfollowButton)).getText().toString().equals("UNFOLLOW")){
-                tempList.get().remove(((TextView) findViewById(R.id.userProfileNameHolder)).getText().toString());
-                //Add the username into the list...
-                fullFollowedWhoList.add(username);
-
+            else if (((Button) findViewById(R.id.followUnfollowButton)).getText().toString().equals("FOLLOW")){
+                String targetUsername = usernameString.get();
+                //Check if the array contains an element that is named 'null'
+                if (translate.size() == 1 && translate.contains(null)){
+                    translate.remove(0); //remove that element and replace it with the element itself.
+                    //Add the username into the list...
+                    translate.add(username);
+                }
+                else {
+                    //Add the username into the list...
+                    translate.add(username);
+                }
+                Toast.makeText(this, "Successfully followed user", Toast.LENGTH_SHORT).show();
+                ((Button) findViewById(R.id.followUnfollowButton)).setText("UNFOLLOW");
             }
         });
 
@@ -81,6 +115,7 @@ public class user_profile_display_and_handling extends AppCompatActivity {
             intent.putExtra("SendBackDescriptionList", results.getStringArrayExtra("ReturnDescriptionList"));
             intent.putExtra("SendBackUserList", results.getStringArrayExtra("ReturnUserList"));
             intent.putExtra("SendBackCurrUsername", results.getStringExtra("ReturnCurrUsername"));
+            intent.putExtra("SendBackCurrDescription", results.getStringExtra("ReturnCurrDescription"));
             intent.putExtra("SendBackFollowedWhoList", followedWhoList);
             startActivity(intent);
             finish();
