@@ -23,8 +23,10 @@ public class user_main extends AppCompatActivity {
         //this java file handles user_page.xml
 
         Intent whiteHole = getIntent();
-
         String name = whiteHole.getStringExtra("Name");
+
+        //Prepare to receive the information from 'recycler_view_interface.java' source code file
+
 
         ((TextView) findViewById(R.id.nameTextBox)).setText(name);
         ((TextView) findViewById(R.id.descriptionTextBox)).setText(whiteHole.getStringExtra("Description"));
@@ -69,6 +71,8 @@ public class user_main extends AppCompatActivity {
             transporter.putExtra("ForwardNameList", output3);
             transporter.putExtra("ForwardDescriptionList", output4);
             transporter.putExtra("Name", name);
+            //Send the description over to the 'recycler_view_interface.java' source code file
+            transporter.putExtra("Description", whiteHole.getStringExtra("Description"));
             startActivity(transporter);
             finish();
         });
