@@ -3,6 +3,7 @@ package sg.np.edu.mad.animationtest;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -57,6 +58,24 @@ public class user_landing extends AppCompatActivity {
         }
         while (element.length() < 20);
         password.add(element);
+    }
+
+    public static String PasswordGenerator_x20length(){
+        final String LOWER_CASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";
+        final String UPPER_CASE_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        final String DIGITS = "0123456789";
+        final String SYMBOLS = "~!@#$%^&*()+`-|:<>?;'./";
+        final String STRING_POOL = LOWER_CASE_LETTERS + UPPER_CASE_LETTERS + DIGITS + SYMBOLS;
+        Random generator = new Random();
+        String element = "";
+        int passwordLength = Math.abs(generator.nextInt(30));
+        do{
+            int index = Math.abs(generator.nextInt(STRING_POOL.length() - 1));
+            char target = STRING_POOL.charAt(index);
+            element += target;
+        }
+        while (element.length() < 20);
+        return element;
     }
 
     //this method will always return one character from the string.
@@ -219,7 +238,7 @@ public class user_landing extends AppCompatActivity {
     }
 
     //dangerous, use this method with care
-    public void WriteToFirebaseFirestore(HashMap<String, User> userData) {
+    private void WriteToFirebaseFirestore(HashMap<String, User> userData) {
         RESTdb.collection("LoginInformation").document("LoginInformation").get().addOnSuccessListener(process -> {
             Log.d("INITIALLENGTH", "" + process.getData().size());
             if (process.getData().size() < 20) {
@@ -263,6 +282,17 @@ public class user_landing extends AppCompatActivity {
         return verificationStatus;
     }
 
+    public boolean hasDuplicate(String username, String string, String dataStrLen, String dataRawStrLen){
+        boolean existence = false;
+        ArrayList<User> a = ConvertToUser(string, dataStrLen, dataRawStrLen);
+        for (User u : a){
+            if (u.username.equals(username)){
+                existence = true;
+            }
+        }
+        return existence;
+    }
+
     //This method is only used to log extremely long messages
     public static void DebugLog(String tag, String msg){
         int maxLogSize = 1000;
@@ -279,7 +309,7 @@ public class user_landing extends AppCompatActivity {
     public static ArrayList<User> ConvertToUser(String string, String dataStrLen, String dataRawStrLen) {
         Log.d("ConvertingToUser", "Converting to user..");
         Log.d("NumOfEntries", dataStrLen);
-        Log.d("NumRawEntries", dataRawStrLen);
+        Log.d("NumRawEntries", dataRawStrLen == null ? "dataRawStrLen has been passed in as null, please supply it with a value." : dataRawStrLen);
         ArrayList<Integer> idList = new ArrayList<Integer>();
         ArrayList<String> nameList = new ArrayList<String>();
         ArrayList<String> descriptionList = new ArrayList<String>();
@@ -514,7 +544,7 @@ public class user_landing extends AppCompatActivity {
             final HashMap<String, Object> a = ((HashMap<String, Object>)process.getData()); //all the data stored in a variable named a..
             Log.d("Data size", "" + a.size()); //99
             Log.d("Current Data", "" + a);
-            ((TextView) findViewById(R.id.tempString)).setText(a.toString());
+            ((TextView) findViewById(R.id.tempString)).setText(a.toString()); //The database goes here
             ((TextView) findViewById(R.id.databaseStringLength)).setText(Integer.toString(a.size()));
         });
     }
@@ -611,9 +641,16 @@ public class user_landing extends AppCompatActivity {
         //if the user taps on the 'New User?' text
         newUser.setOnTouchListener((View v, MotionEvent m) -> {
             //go to another java class
-            //Intent andThenRedirect = new Intent(user_landing.this, create_user_account_funcitonality.class);
-            //startActivity(andThenRedirect);
-            Toast.makeText(this, "This feature is not available as of now", Toast.LENGTH_SHORT).show();
+            String result = ((TextView) findViewById(R.id.tempString)).getText().toString();
+            String result1 = ((TextView) findViewById(R.id.databaseStringLength)).getText().toString();
+            String result2 = Integer.toString(((TextView) findViewById(R.id.tempString)).getText().length()); //raw length
+            Intent andThenRedirect = new Intent(user_landing.this, create_user_account_funcitonality.class);
+            andThenRedirect.putExtra("DataString", result); //data string
+            andThenRedirect.putExtra("DataStringLen", result1); //20
+            andThenRedirect.putExtra("DataRawStringLen", result2);
+            startActivity(andThenRedirect);
+            finish();
+            //Toast.makeText(this, "This feature is not available as of now", Toast.LENGTH_SHORT).show();
             return m.isButtonPressed(R.id.createNewUser);
         });
 
@@ -625,9 +662,10 @@ public class user_landing extends AppCompatActivity {
             (DialogInterface di, int i) -> {
                 di.dismiss();
                 //then redirect to another activity...
-                //Intent andThenRedirect = new Intent(user_landing.this, create_user_account_funcitonality.class);
-                //startActivity(andThenRedirect);
-                Toast.makeText(this, "This feature is not available as of now", Toast.LENGTH_SHORT).show();
+                Intent andThenRedirect = new Intent(user_landing.this, create_user_account_funcitonality.class);
+                startActivity(andThenRedirect);
+                finish();
+                //Toast.makeText(this, "This feature is not available as of now", Toast.LENGTH_SHORT).show();
             }
         )
         .setNegativeButton(

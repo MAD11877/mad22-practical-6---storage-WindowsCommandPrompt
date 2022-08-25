@@ -46,6 +46,17 @@
                 android:layout_height="match_parent"
                 android:layout_width = "500px"></EditText>
         </LinearLayout>
+        <TextView
+            android:id = "@+id/autoGeneratePassword"
+            android:layout_width = "match_parent"
+            android:layout_height = "wrap_content"
+            android:text = "Tap here to let the system generate a password for you"
+            android:textSize = "35px"
+            android:gravity = "center"
+            android:clickable = "true"
+            android:textColor = "@color/waveColor"
+            android:textStyle = "bold"
+            android:layout_marginTop = "120px"/>
         <LinearLayout
             android:layout_height="wrap_content"
             android:layout_width = "match_parent"
