@@ -17,15 +17,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javax.annotation.Nullable;
+import java.util.stream.Collectors;
 
 public class create_user_account_funcitonality extends AppCompatActivity {
     //this java file controls 'create_user_account.xml'
@@ -88,8 +83,6 @@ public class create_user_account_funcitonality extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_user_account);
 
-        //Log.d("METHODRESULT", "" + containsOneOf("sldjfsjldf", new String[]{ "s", "w", "l" })); //true
-
         //Prepare to receive the string from the firebase
         Intent retrieval = getIntent();
         String data = retrieval.getStringExtra("DataString");
@@ -114,10 +107,8 @@ public class create_user_account_funcitonality extends AppCompatActivity {
         Log.d("IDARR", "" + idList);
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-
         AtomicReference<String> tempString = new AtomicReference<>();
         tempString.set(user_landing.PasswordGenerator_x20length());
-
         AlertDialog.Builder alertDialogBuilder1 = new AlertDialog.Builder(this);
         String restorePrevPasswordInput = ((TextView) findViewById(R.id.setPasswordFieldText)).getText().toString();
         alertDialogBuilder1
@@ -136,17 +127,11 @@ public class create_user_account_funcitonality extends AppCompatActivity {
                 di.dismiss();
                 tempString.set(user_landing.PasswordGenerator_x20length());
                 Log.d("sdf", "" + tempString.get());
+                alertDialogBuilder1.setMessage(String.format("The password generated is: \n%s", tempString.get()) + "\nDo you want to keep this password? ");
                 alertDialogBuilder1.create().show();
             }
         )
-        .setNegativeButton(
-            "KEEP MY CURRENT PASSWORD",
-            (DialogInterface di, int i) -> {
-                di.dismiss();
-            }
-        )
         .setCancelable(false);
-//D:\mad22-practical-6---storage-WindowsCommandPrompt\app\documentation.txt
 
         ((TextView) findViewById(R.id.autoGeneratePassword)).setOnClickListener(function -> {
             tempString.set(user_landing.PasswordGenerator_x20length());
@@ -158,6 +143,10 @@ public class create_user_account_funcitonality extends AppCompatActivity {
             String usernameInput = usernameField.getText().toString(); //Extract the username string from the username field
             EditText passwordField = (findViewById(R.id.setPasswordFieldText));
             String passwordInput = passwordField.getText().toString(); //Extract the password string from the password field
+            Toast message = Toast.makeText(this,
+                    String.format("Password length is too long, it must be less than 30 characters.\nCurrent length: %s", usernameInput.length()),
+                    Toast.LENGTH_LONG
+            );
             if (usernameInput.length() != 0 && passwordInput.length() != 0) {
                 if (ul.hasDuplicate(usernameInput, data, dataLen, null)) {
                     //if there is a duplicate....
@@ -249,10 +238,9 @@ public class create_user_account_funcitonality extends AppCompatActivity {
                         }
                         else {
                             //Password length is too long!
-                            Toast.makeText(this,
-                                String.format("Password length is too long, it must be less than 30 characters.\nCurrent length: %s", usernameInput.length()),
-                                Toast.LENGTH_LONG
-                            ).show();
+                            message.cancel();
+                            message.setText(String.format("Password length is too long, it must be less than 30 characters.\nCurrent length: %s", usernameInput.length()));
+                            message.show();
                         }
                     }
                 }
@@ -289,25 +277,28 @@ public class create_user_account_funcitonality extends AppCompatActivity {
         });
     }
 
-    private static Object[] containsOneOf(@NonNull String sample, @Nullable String[] target){
+    private static Object[] containsOneOf(@NonNull String sample, @NonNull String[] target){
         Object[] results = new Object[2];
         HashMap<String, Integer> record = new HashMap<>();
-        if (target != null) {
-            for (int j = 0; j < target.length; j++) {
+        List<String> a = Arrays.stream(target).collect(Collectors.toList());
+        int j = 0;
+        for (; ; ) {
+            if (a.size() > 0) {
                 Log.d("VALUEOFJ", "" + j);
-                for (int i = 0; i < sample.length(); i++){
+                for (int i = 0; i < sample.length(); i++) {
                     Log.d("VALUEOFI", "" + i);
-                    if (i + target[j].length() < sample.length()){
-                        if (target[j].equals(sample.substring(i, i + target[j].length()))) {
+                    if (i + a.get(j).length() < sample.length()) {
+                        if (a.get(j).equals(sample.substring(i, i + target[j].length()))) {
                             results[0] = true;
-                            record.put(target[j], i);
+                            record.put(a.get(j), i);
                         }
                     }
                 }
+                j++;
             }
-        }
-        else {
-            Log.e("METHOD", "Both referenceString and target cannot be null at the same time");
+            else {
+                break;
+            }
         }
         results[1] = record;
         return results;

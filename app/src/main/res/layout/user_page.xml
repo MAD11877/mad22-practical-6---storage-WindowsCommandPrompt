@@ -13,6 +13,21 @@
         app:layout_constraintTop_toTopOf="parent"
         android:orientation = "vertical" >
         <!--This is where the image will go-->
+        <TextView
+            android:layout_width = "wrap_content"
+            android:layout_height = "wrap_content"
+            android:visibility = "gone"
+            android:id = "@+id/storeTempFirebaseData"/>
+        <TextView
+            android:layout_width = "wrap_content"
+            android:layout_height = "wrap_content"
+            android:visibility = "gone"
+            android:id = "@+id/storeTempFirebaseDataLength" />
+        <TextView
+        android:layout_width = "wrap_content"
+        android:layout_height = "wrap_content"
+        android:visibility = "gone"
+        android:id = "@+id/storeTempFirebaseDataLengthRaw" />
         <LinearLayout
             android:layout_width = "match_parent"
             android:layout_height = "wrap_content"

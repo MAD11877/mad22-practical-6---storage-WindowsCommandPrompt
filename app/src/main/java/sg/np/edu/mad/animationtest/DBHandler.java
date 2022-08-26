@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +31,6 @@ public class DBHandler extends SQLiteOpenHelper {
                              + "Id INTEGER,"
                              + "Name TEXT,"
                              + "Description TEXT,"
-                             + "Followed TEXT,"
                              + "FollowedWho TEXT,"
                              + "Username TEXT,"
                              + "Password TEXT" +
@@ -47,18 +47,18 @@ public class DBHandler extends SQLiteOpenHelper {
 
     //pass in the user object. Extract the username and the password of the user object accordingly
     public void AddUser(User user){
+        Log.d("Adding", "Adding the user to the database");
+        SQLiteDatabase SQLDB = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("Id", user.id);
         values.put("Name", user.name);
         values.put("Description", user.description);
-        values.put("Username", user.username);
-        values.put("Password", user.password);
-        values.put("Followed", user.followed);
         //convert the entire string to array...
         //Convert.ToObject([Type], [Value]) would sound better
         //Convert.ToObject(String, user.followedWho);
         values.put("FollowedWho", user.followedWho.toString());
-        SQLiteDatabase SQLDB = this.getWritableDatabase();
+        values.put("Username", user.username);
+        values.put("Password", user.password);
         SQLDB.insert("UserAccounts", null, values);
         SQLDB.close();
     }
@@ -76,10 +76,9 @@ public class DBHandler extends SQLiteOpenHelper {
                 returnUser.setId(Integer.parseInt(pointer.getString(0)));
                 returnUser.setName(pointer.getString(1));
                 returnUser.setDescription(pointer.getString(2));
-                returnUser.setFollowed(Boolean.parseBoolean(pointer.getString(3)));
-                returnUser.setFollowedWho((new ArrayList<String>(Arrays.asList(pointer.getString(4)))));
-                returnUser.setUsername(pointer.getString(5));
-                returnUser.setPassword(pointer.getString(6));
+                returnUser.setFollowedWho((new ArrayList<String>(Arrays.asList(pointer.getString(3)))));
+                returnUser.setUsername(pointer.getString(4));
+                returnUser.setPassword(pointer.getString(5));
                 tempUserList.add(returnUser);
                 return tempUserList;
             }
@@ -98,8 +97,7 @@ public class DBHandler extends SQLiteOpenHelper {
     //SQLDB only holds one data
     public void ClearDatabase(){
         SQLiteDatabase SQLDB = this.getWritableDatabase();
-        String statement = "DELETE FROM UserAccounts";
-        SQLDB.rawQuery(statement, null);
+        SQLDB.execSQL("DELETE FROM UserAccounts");
         SQLDB.close();
     }
 

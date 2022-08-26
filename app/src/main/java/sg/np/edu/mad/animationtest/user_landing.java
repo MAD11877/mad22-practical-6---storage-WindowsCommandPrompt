@@ -623,7 +623,7 @@ public class user_landing extends AppCompatActivity {
             Log.d(TAG, "Else statement executed");
             //straight away go to user_main.java
             Intent transporter = new Intent();
-            transporter.setClassName("sg.np.edu.mad.animationtest.user_landing", "sg.np.edu.mad.animationtest.user_main");
+            transporter.setClassName("sg.np.edu.mad.animationtest", "sg.np.edu.mad.animationtest.user_main");
             startActivity(transporter);
             finish();
         }
@@ -638,96 +638,106 @@ public class user_landing extends AppCompatActivity {
         //Create a new user account
         TextView newUser = (TextView) findViewById(R.id.createNewUser);
 
-        //if the user taps on the 'New User?' text
-        newUser.setOnTouchListener((View v, MotionEvent m) -> {
-            //go to another java class
-            String result = ((TextView) findViewById(R.id.tempString)).getText().toString();
-            String result1 = ((TextView) findViewById(R.id.databaseStringLength)).getText().toString();
-            String result2 = Integer.toString(((TextView) findViewById(R.id.tempString)).getText().length()); //raw length
-            Intent andThenRedirect = new Intent(user_landing.this, create_user_account_funcitonality.class);
-            andThenRedirect.putExtra("DataString", result); //data string
-            andThenRedirect.putExtra("DataStringLen", result1); //20
-            andThenRedirect.putExtra("DataRawStringLen", result2);
-            startActivity(andThenRedirect);
-            finish();
-            //Toast.makeText(this, "This feature is not available as of now", Toast.LENGTH_SHORT).show();
-            return m.isButtonPressed(R.id.createNewUser);
-        });
-
-        alertDialog
-        .setTitle("User authentication has failed")
-        .setMessage("Either your username or your password is not correct. Please try again.")
-        .setPositiveButton(
-            "Create another account",
-            (DialogInterface di, int i) -> {
-                di.dismiss();
-                //then redirect to another activity...
+        if (newUser != null && myLoginButton != null) {
+            //if the user taps on the 'New User?' text
+            newUser.setOnTouchListener((View v, MotionEvent m) -> {
+                //go to another java class
+                String result = ((TextView) findViewById(R.id.tempString)).getText().toString();
+                String result1 = ((TextView) findViewById(R.id.databaseStringLength)).getText().toString();
+                String result2 = Integer.toString(((TextView) findViewById(R.id.tempString)).getText().length()); //raw length
                 Intent andThenRedirect = new Intent(user_landing.this, create_user_account_funcitonality.class);
+                andThenRedirect.putExtra("DataString", result); //data string
+                andThenRedirect.putExtra("DataStringLen", result1); //20
+                andThenRedirect.putExtra("DataRawStringLen", result2);
                 startActivity(andThenRedirect);
                 finish();
                 //Toast.makeText(this, "This feature is not available as of now", Toast.LENGTH_SHORT).show();
-            }
-        )
-        .setNegativeButton(
-            "Try again",
-            (DialogInterface di, int i) -> {
-                di.dismiss();
-            }
-        )
-        .setCancelable(false);
+                return m.isButtonPressed(R.id.createNewUser);
+            });
 
-        myLoginButton.setOnClickListener(ThenFunction -> {
-            Log.d("DatabaseFullStringLen", "" + ((TextView) findViewById(R.id.tempString)).getText().length());
-            DebugLog("DatabaseFullString", ((TextView) findViewById(R.id.tempString)).getText().toString());
-            Log.d("DatabaseEntries", ((TextView) findViewById(R.id.databaseStringLength)).getText().toString());
-            String result = ((TextView) findViewById(R.id.tempString)).getText().toString();
-            String result1 = ((TextView) findViewById(R.id.databaseStringLength)).getText().toString();
-            String result2 = Integer.toString(((TextView) findViewById(R.id.tempString)).getText().length());
-            //Take in the password.
-            EditText passwordTextField = (EditText) findViewById(R.id.passwordField);
-            //then take in the username
-            EditText usernameTextField = (EditText) findViewById(R.id.usernameField);
-            Log.d(TAG, "The code reached here");
-            if (passwordTextField.getText().length() != 0 && usernameTextField.getText().length() != 0) {
-                ArrayList<Object> finalObjArr = isAnEntryInDatabase(usernameTextField.getText().toString(), passwordTextField.getText().toString(), result, result1, result2);
-                Log.d("Account verification", "Verification started....");
-                Log.d("USERNAMECHECKSTATUS", "" + finalObjArr.get(0));
-                Log.d("PASSWORDCHECKSTATUS", "" + finalObjArr.get(1));
-                if (((Boolean) finalObjArr.get(0)) && (Boolean) finalObjArr.get(1)) {
-                    //if the username exist then check for the password.
-                    ArrayList<String> abc = new ArrayList<String>();
-                    ArrayList<String> abc1 = new ArrayList<>();
-                    ArrayList<String> abc2 = new ArrayList<>();
-                    for (int i = 0; i < ConvertToUser(result, result1, result2).size(); i++) {
-                        //Add all users into the list.
-                        abc.add(ConvertToUser(result, result1, result2).get(i).username);
-                        abc1.add(ConvertToUser(result, result1, result2).get(i).name);
-                        abc2.add(ConvertToUser(result, result1, result2).get(i).description);
+            alertDialog
+                    .setTitle("User authentication has failed")
+                    .setMessage("Either your username or your password is not correct. Please try again.")
+                    .setPositiveButton(
+                            "Create another account",
+                            (DialogInterface di, int i) -> {
+                                di.dismiss();
+                                //then redirect to another activity...
+                                Intent andThenRedirect = new Intent(user_landing.this, create_user_account_funcitonality.class);
+                                startActivity(andThenRedirect);
+                                finish();
+                                //Toast.makeText(this, "This feature is not available as of now", Toast.LENGTH_SHORT).show();
+                            }
+                    )
+                    .setNegativeButton(
+                            "Try again",
+                            (DialogInterface di, int i) -> {
+                                di.dismiss();
+                            }
+                    )
+                    .setCancelable(false);
+
+            myLoginButton.setOnClickListener(ThenFunction -> {
+                Log.d("DatabaseFullStringLen", "" + ((TextView) findViewById(R.id.tempString)).getText().length());
+                DebugLog("DatabaseFullString", ((TextView) findViewById(R.id.tempString)).getText().toString());
+                Log.d("DatabaseEntries", ((TextView) findViewById(R.id.databaseStringLength)).getText().toString());
+                String result = ((TextView) findViewById(R.id.tempString)).getText().toString();
+                String result1 = ((TextView) findViewById(R.id.databaseStringLength)).getText().toString();
+                String result2 = Integer.toString(((TextView) findViewById(R.id.tempString)).getText().length());
+                //Take in the password.
+                EditText passwordTextField = (EditText) findViewById(R.id.passwordField);
+                //then take in the username
+                EditText usernameTextField = (EditText) findViewById(R.id.usernameField);
+                Log.d(TAG, "The code reached here");
+                if (passwordTextField.getText().length() != 0 && usernameTextField.getText().length() != 0) {
+                    ArrayList<Object> finalObjArr = isAnEntryInDatabase(usernameTextField.getText().toString(), passwordTextField.getText().toString(), result, result1, result2);
+                    Log.d("Account verification", "Verification started....");
+                    Log.d("USERNAMECHECKSTATUS", "" + finalObjArr.get(0));
+                    Log.d("PASSWORDCHECKSTATUS", "" + finalObjArr.get(1));
+                    if (((Boolean) finalObjArr.get(0)) && (Boolean) finalObjArr.get(1)) {
+                        //if the username exist then check for the password.
+                        ArrayList<String> abc = new ArrayList<String>();
+                        ArrayList<String> abc1 = new ArrayList<>();
+                        ArrayList<String> abc2 = new ArrayList<>();
+                        for (int i = 0; i < ConvertToUser(result, result1, result2).size(); i++) {
+                            //Add all users into the list.
+                            abc.add(ConvertToUser(result, result1, result2).get(i).username);
+                            abc1.add(ConvertToUser(result, result1, result2).get(i).name);
+                            abc2.add(ConvertToUser(result, result1, result2).get(i).description);
+                        }
+                        Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "User login is successful at this point");
+                        //Add the user object into the SQLDB..
+                        Intent andThenRedirect = new Intent(sg.np.edu.mad.animationtest.user_landing.this, sg.np.edu.mad.animationtest.user_main.class);
+                        andThenRedirect.putExtra("Name", ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).name);
+                        andThenRedirect.putExtra("Description", ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).description);
+                        andThenRedirect.putExtra("FollowedWhoList", ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).followedWho.toArray(new String[]{}));
+                        andThenRedirect.putExtra("FullUserList", abc.toArray(new String[]{}));
+                        andThenRedirect.putExtra("FullNameList", abc1.toArray(new String[]{}));
+                        andThenRedirect.putExtra("FullDescriptionList", abc2.toArray(new String[]{}));
+                        //Form a user object....
+                        User user = new User(
+                                ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).id,
+                                ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).name,
+                                ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).description,
+                                ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).username,
+                                ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).password,
+                                ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).followed,
+                                ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).followedWho
+                        );
+                        dbHandler.AddUser(user);
+                        //tell user_landing.java to pass the task to user_main.java
+                        startActivity(andThenRedirect);
+                        finish();
+                    } else {
+                        Log.d("BOTHWRONG", "Both username and the password are wrong");
+                        alertDialog.create().show();
                     }
-                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "User login is successful at this point");
-                    //Add the user object into the SQLDB..
-                    Intent andThenRedirect = new Intent(sg.np.edu.mad.animationtest.user_landing.this, sg.np.edu.mad.animationtest.user_main.class);
-                    andThenRedirect.putExtra("Name", ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).name);
-                    andThenRedirect.putExtra("Description", ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).description);
-                    andThenRedirect.putExtra("FollowedWhoList", ConvertToUser(result, result1, result2).get((Integer) finalObjArr.get(2)).followedWho.toArray(new String[] { }));
-                    andThenRedirect.putExtra("FullUserList", abc.toArray(new String[] {}));
-                    andThenRedirect.putExtra("FullNameList", abc1.toArray(new String[] {}));
-                    andThenRedirect.putExtra("FullDescriptionList", abc2.toArray(new String[] {}));
-                    //dbHandler.AddUser();
-                    //tell user_landing.java to pass the task to user_main.java
-                    startActivity(andThenRedirect);
-                    finish();
+                } else {
+                    //make a toast message that tells the user that the username and the password field has been left blank
+                    Toast.makeText(this, "Please enter your username and / or password", Toast.LENGTH_SHORT).show();
                 }
-                else {
-                    Log.d("BOTHWRONG", "Both username and the password are wrong");
-                    alertDialog.create().show();
-                }
-            }
-            else {
-                //make a toast message that tells the user that the username and the password field has been left blank
-                Toast.makeText(this, "Please enter your username and / or password", Toast.LENGTH_SHORT).show();
-            }
-        });
+            });
+        }
     }
 }

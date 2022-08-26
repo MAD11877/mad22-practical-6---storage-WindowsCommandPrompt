@@ -46,8 +46,11 @@ public class recycler_view_interface extends AppCompatActivity {
         if (result2 != null && result4 != null) {
             targetIndex = Arrays.stream(result2).collect(Collectors.toList()).indexOf(result4);
         }
-        else {
+        else if (restoredNameList != null && restoredCurrUsername != null){
             targetIndex = Arrays.stream(restoredNameList).collect(Collectors.toList()).indexOf(restoredCurrUsername);
+        }
+        else {
+
         }
 
         //Bind to the recycler view adapter here
